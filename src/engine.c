@@ -58,6 +58,8 @@ void start()
 			if (evt.type == SDL_MOUSEMOTION) {
 				int dx = evt.motion.xrel;
 				double dAngle = (dx + 0.0) * MOUSE_SENSITIVITY;
+				dAngle = ((dAngle > MAX_ANGLE_DELTA) ? MAX_ANGLE_DELTA : dAngle);
+				dAngle = ((dAngle < (- MAX_ANGLE_DELTA) ? (- MAX_ANGLE_DELTA) : dAngle));
 				cam.angle += dAngle;
 			}
 		}

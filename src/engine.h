@@ -5,6 +5,7 @@
 
 #define WALK_SPEED 0.005
 #define MOUSE_SENSITIVITY 0.01
+#define MAX_ANGLE_DELTA 0.015
 
 struct camera {
 	struct vector location;
