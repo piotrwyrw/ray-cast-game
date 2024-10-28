@@ -16,7 +16,7 @@ add_executable(game
 		src/math.c
 		src/render.c)
 
-target_link_libraries(game ${SDL2_LIBRARIES} SDL2::SDL2)
+target_link_libraries(game ${SDL2_LIBRARIES})
 
 set_property(TARGET game PROPERTY C_STANDARD 99)
 

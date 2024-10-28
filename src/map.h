@@ -3,9 +3,18 @@
 
 #include "math.h"
 
+#include <SDL2/SDL.h>
+
+struct color {
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
+};
+
 struct segment {
 	struct vector *a;
 	struct vector *b;
+	struct color color;
 };
 
 struct ray_cast {
@@ -15,8 +24,14 @@ struct ray_cast {
 };
 
 #define vec(_x, _y) ((struct vector) {.x = _x, .y = _y})
-#define seg(_a, _b) ((struct segment) {.a = _a, .b = _b})
+#define color(_r, _g, _b) ((struct color) {.r = _r, .g = _g, .b = _b})
+#define seg(_a, _b, _color) ((struct segment) {.a = _a, .b = _b, .color = _color})
 #define vert(_x, _y) vec(_x, _y)
+
+#define COLOR_WHITE	color(255, 255, 255)
+#define COLOR_GREEN	color(29, 209, 161)
+#define COLOR_GRAY	color(87, 101, 116)
+#define COLOR_BLUE	color(52, 172, 224)
 
 extern struct vector vertices[];
 extern struct segment segments[];

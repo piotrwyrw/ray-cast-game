@@ -59,7 +59,7 @@ void render_raycast(struct state *s, struct camera *cam)
 		if (diff < 0 || diff > M_PI * 2)
 			diff = M_PI * 2;
 
-		render_wall_line(s, x, cast.real_distance * cos(diff), WALL_COLOR, cast.segment != last_segment);
+		render_wall_line(s, x, cast.real_distance * cos(diff), cast.segment->color.r, cast.segment->color.g, cast.segment->color.b, cast.segment != last_segment);
 	}
 }
 

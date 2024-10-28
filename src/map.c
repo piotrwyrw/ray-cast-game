@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define sgt(idx1, idx2) seg(&vertices[idx1], &vertices[idx2])
+#define sgt(idx1, idx2, clr) seg(&vertices[idx1], &vertices[idx2], clr)
 
 struct vector vertices[] = {
 	// Main Hall
@@ -35,28 +35,10 @@ struct vector vertices[] = {
 
 struct segment segments[] = {
 	// Main Hall
-	sgt(0, 1),
-	sgt(1, 2),
-	sgt(2, 3),
-	sgt(3, 0),
-
-	// Room 1
-	sgt(4, 5),
-	sgt(5, 6),
-	sgt(6, 7),
-	sgt(7, 4),
-
-	// Room 2
-	sgt(8, 9),
-	sgt(9, 10),
-	sgt(10, 11),
-	sgt(11, 8),
-
-	// Side Corridor
-	sgt(12, 13),
-	sgt(13, 14),
-	sgt(14, 15),
-	sgt(15, 12)
+	sgt(0, 1, COLOR_WHITE),
+	sgt(1, 2, COLOR_GREEN),
+	sgt(2, 3, COLOR_GRAY),
+	sgt(3, 0, COLOR_BLUE),
 };
 
 _Bool ray_segment(struct ray_cast *cast, double originX, double originY, double dirX, double dirY, struct segment *seg)
