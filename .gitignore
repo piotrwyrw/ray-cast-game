@@ -2,4 +2,5 @@ CMakeFiles
 CMakeCache.txt
 Makefile
 cmake_install.cmake
-doom
+game
+compile_commands.json
