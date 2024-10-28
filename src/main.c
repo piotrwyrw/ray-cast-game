@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include "engine.h"
 
 int main(void)
 {
-	printf("Hello, World!\n");
+	start();
 	return 0;
 }
