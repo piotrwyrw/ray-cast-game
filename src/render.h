@@ -8,7 +8,7 @@
 
 #define Z_FAR 100.0
 #define LIGHT_DISTANCE 5.0
-#define FOV (60 * (M_PI / 180))
+#define FOV (90 * (M_PI / 180))
 #define WALL_HEIGHT (HEIGHT / 2 - 200)
 
 #define SKY_COLOR 52, 31, 151

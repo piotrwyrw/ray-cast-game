@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "map.h"
 #include "math.h"
 #include "state.h"
 #include "defines.h"
@@ -25,13 +26,25 @@ void update_direction()
 	cam_direction = vector_dir_angle(cam.angle);
 }
 
-void walk(double amount)
+void walk(_Bool forward)
 {
 	update_direction();
 
 	struct vector extension = cam_direction;
-	vector_mul(&extension, amount);
+	vector_mul(&extension, forward ? WALK_SPEED : -WALK_SPEED);
+
+	struct vector walk_direction = cam_direction;
+	if (!forward)
+		vector_mul(&walk_direction, -1.0);
+
+	struct ray_cast cast;
+	if (cast_ray(&cast, &cam.location, &walk_direction)) {
+		if (cast.real_distance <= WALK_SPEED)
+			return;
+	}
+
 	vector_add(&cam.location, &extension);
+
 }
 
 void render(struct state *s)
@@ -70,10 +83,10 @@ void start()
 			s.close = true;
 
 		if (keyState[SDL_SCANCODE_W])
-			walk(WALK_SPEED);
+			walk(true);
 
 		if (keyState[SDL_SCANCODE_S])
-			walk(-WALK_SPEED);
+			walk(false);
 
 		render(&s);
 	}
