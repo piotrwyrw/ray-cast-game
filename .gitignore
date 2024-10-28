@@ -4,3 +4,5 @@ Makefile
 cmake_install.cmake
 game
 compile_commands.json
+.cache
+.DS_Store
