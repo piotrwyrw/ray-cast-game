@@ -6,21 +6,21 @@
 #include <SDL2/SDL.h>
 
 struct color {
-	Uint8 r;
-	Uint8 g;
-	Uint8 b;
+        Uint8 r;
+        Uint8 g;
+        Uint8 b;
 };
 
 struct segment {
-	struct vector *a;
-	struct vector *b;
-	struct color color;
+        struct vector *a;
+        struct vector *b;
+        struct color color;
 };
 
 struct ray_cast {
-	double seg_distance;
-	double real_distance;
-	struct segment *segment;
+        double seg_distance;
+        double real_distance;
+        struct segment *segment;
 };
 
 #define vec(_x, _y) ((struct vector) {.x = _x, .y = _y})
@@ -28,10 +28,10 @@ struct ray_cast {
 #define seg(_a, _b, _color) ((struct segment) {.a = _a, .b = _b, .color = _color})
 #define vert(_x, _y) vec(_x, _y)
 
-#define COLOR_WHITE	color(255, 255, 255)
-#define COLOR_GREEN	color(29, 209, 161)
-#define COLOR_GRAY	color(87, 101, 116)
-#define COLOR_BLUE	color(52, 172, 224)
+#define COLOR_WHITE     color(255, 255, 255)
+#define COLOR_GREEN     color(0, 250, 0)
+#define COLOR_YELLOW    color(255, 195, 18)
+#define COLOR_BLUE      color(9, 132, 227)
 
 extern struct vector vertices[];
 extern struct segment segments[];

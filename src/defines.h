@@ -9,4 +9,6 @@
 
 #define vec(_x, _y) ((struct vector) {.x = _x, .y = _y})
 
+#define signum(d) ((d >= 0.0) ? 1 : -1)
+
 #endif

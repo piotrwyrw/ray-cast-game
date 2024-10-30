@@ -3,9 +3,9 @@
 
 #include "math.h"
 
-#define WALK_SPEED 0.005
-#define MOUSE_SENSITIVITY 0.01
-#define MAX_ANGLE_DELTA 0.015
+#define WALK_SPEED 0.08
+#define MOUSE_SENSITIVITY 0.001
+#define MAX_ANGLE_DELTA 1.0
 
 struct camera {
 	struct vector location;
