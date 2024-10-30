@@ -1,15 +1,16 @@
 #include "map.h"
 #include "math.h"
+#include "textures.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
 
-#define sgt(idx1, idx2, clr) seg(&vertices[idx1], &vertices[idx2], clr)
+#define sgt(idx1, idx2, txt, scale) seg(&vertices[idx1], &vertices[idx2], txt, scale)
 
 struct vector vertices[] = {
         vert(-5.0, 5.0),
-        vert(-5.0, -5.0),
+        vert(-5.0, 0.0),
         vert(5.0, -5.0),
         vert(5.0, 5.0),
 
@@ -20,15 +21,15 @@ struct vector vertices[] = {
 };
 
 struct segment segments[] = {
-        sgt(0, 1, COLOR_WHITE),
-        sgt(1, 2, COLOR_GREEN),
-        sgt(2, 3, COLOR_YELLOW),
-        sgt(3, 0, COLOR_BLUE),
+        sgt(0, 1, CONCRETE_INDEX, 1.0),
+        sgt(1, 2, CONCRETE_INDEX, 1.0),
+        sgt(2, 3, CONCRETE_INDEX, 1.0),
+        sgt(3, 0, CONCRETE_INDEX, 1.0),
 
-        sgt(4, 5, COLOR_WHITE),
-        sgt(5, 6, COLOR_WHITE),
-        sgt(6, 7, COLOR_WHITE),
-        sgt(7, 4, COLOR_WHITE),
+        sgt(4, 5, BRICKS_INDEX, 3.0),
+        sgt(5, 6, BRICKS_INDEX, 3.0),
+        sgt(6, 7, BRICKS_INDEX, 3.0),
+        sgt(7, 4, BRICKS_INDEX, 3.0),
 };
 
 _Bool ray_segment(struct ray_cast *cast, double originX, double originY, double dirX, double dirY, struct segment *seg)

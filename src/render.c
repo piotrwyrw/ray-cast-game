@@ -1,33 +1,51 @@
 #include "render.h"
 
-#include "defines.h"
 #include "map.h"
 #include "math.h"
-#include <SDL_pixels.h>
-#include <SDL_render.h>
+#include "textures.h"
+
+#include <SDL.h>
 
 #include <stdbool.h>
 #include <math.h>
 
 #define dim(f, r, g, b) f * r, f * g, f * b
 
-void render_wall_line(struct state *s, int x, double distance, Uint8 r, Uint8 g, Uint8 b, _Bool contour)
+void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distance, _Bool contour)
 {
-        double light_falloff = 0.3;
-        double df = (1.0 - (light_falloff / (LIGHT_DISTANCE + 0.0)) *
-                           ((distance > LIGHT_DISTANCE) ? LIGHT_DISTANCE : distance));
-        SDL_SetRenderDrawColor(s->renderer, dim(df, r, g, b), 255);
-
-        if (contour)
-                SDL_SetRenderDrawColor(s->renderer, 0, 0, 0, 255);
-
         int height = WALL_HEIGHT / distance;
 
-        SDL_RenderDrawLine(s->renderer, x, HEIGHT / 2 - height, x, HEIGHT / 2 + height);
+        // Render the texture
+        SDL_Rect dst = {
+                .x = x,
+                .y = HEIGHT / 2 - height,
+                .w = 1,
+                .h = height * 2
+        };
+
+        SDL_Texture *t = game_textures[rc->segment->txt];
+        int t_width, t_height;
+        SDL_QueryTexture(t, NULL, NULL, &t_width, &t_height);
+
+        double length = vector_distance(rc->segment->a, rc->segment->b);
+
+        SDL_Rect src = {
+                .x = (rc->seg_distance / length) * ((double) t_width / rc->segment->txt_scale),
+                .y = 0,
+                .w = 1,
+                .h = t_height / rc->segment->txt_scale
+        };
+
+        SDL_RenderCopy(s->renderer, t, &src, &dst);
 
         SDL_SetRenderDrawColor(s->renderer, 0, 0, 0, 255);
         SDL_RenderDrawPoint(s->renderer, x, HEIGHT / 2 - height);
         SDL_RenderDrawPoint(s->renderer, x, HEIGHT / 2 + height);
+
+        if (!contour)
+                return;
+
+        SDL_RenderDrawLine(s->renderer, x, HEIGHT / 2 - height, x, HEIGHT / 2 + height);
 }
 
 void render_gradient(struct state *s, int y, int h, Uint8 r, Uint8 g, Uint8 b, _Bool direction)
@@ -62,8 +80,7 @@ void render_raycast(struct state *s, struct camera *cam)
                 if (!cast_ray(&cast, &cam->location, &direction))
                         continue;
 
-                render_wall_line(s, x, cast.real_distance * cos(cam->angle - angle), cast.segment->color.r,
-                                 cast.segment->color.g, cast.segment->color.b, cast.segment != last_segment);
+                render_wall_line(s, &cast, x, cast.real_distance * cos(angle - cam->angle), cast.segment != last_segment);
         }
 }
 

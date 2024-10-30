@@ -1,9 +1,6 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-#define WIDTH 1500
-#define HEIGHT 900
-
 #define rgb(r, g, b) r, g, b, 255
 #define gray(v) rgb(v, v, v)
 

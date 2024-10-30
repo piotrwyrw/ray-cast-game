@@ -3,7 +3,7 @@
 
 #include "math.h"
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 struct color {
         Uint8 r;
@@ -14,7 +14,8 @@ struct color {
 struct segment {
         struct vector *a;
         struct vector *b;
-        struct color color;
+        unsigned int txt;
+        double txt_scale;
 };
 
 struct ray_cast {
@@ -24,14 +25,8 @@ struct ray_cast {
 };
 
 #define vec(_x, _y) ((struct vector) {.x = _x, .y = _y})
-#define color(_r, _g, _b) ((struct color) {.r = _r, .g = _g, .b = _b})
-#define seg(_a, _b, _color) ((struct segment) {.a = _a, .b = _b, .color = _color})
+#define seg(_a, _b, _txt, _scale) ((struct segment) {.a = _a, .b = _b, .txt = _txt, .txt_scale = _scale})
 #define vert(_x, _y) vec(_x, _y)
-
-#define COLOR_WHITE     color(255, 255, 255)
-#define COLOR_GREEN     color(0, 250, 0)
-#define COLOR_YELLOW    color(255, 195, 18)
-#define COLOR_BLUE      color(9, 132, 227)
 
 extern struct vector vertices[];
 extern struct segment segments[];

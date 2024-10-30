@@ -1,16 +1,12 @@
 #include "engine.h"
-#include "map.h"
 #include "math.h"
 #include "state.h"
 #include "defines.h"
 #include "render.h"
 
-#include <SDL_events.h>
-#include <SDL_keyboard.h>
-#include <SDL_mouse.h>
-#include <SDL_render.h>
-#include <SDL_scancode.h>
 #include <stdbool.h>
+
+#include <SDL_image.h>
 
 const Uint8 *keyState;
 
@@ -18,6 +14,9 @@ struct camera cam = {
         .location = vec(0.0, 0.0),
         .angle = 0.0
 };
+
+unsigned int WIDTH = 1500;
+unsigned int HEIGHT = 900;
 
 enum walk_direction {
         WALK_FORWARD,
@@ -63,12 +62,14 @@ void render(struct state *s)
 void start()
 {
         struct state s;
-        initialize(&s);
+
+        if (!initialize(&s)) {
+                close(&s);
+                return;
+        }
 
         if (s.close)
                 goto _close;
-
-        SDL_SetRelativeMouseMode(true);
 
         SDL_Event evt;
 
@@ -88,6 +89,11 @@ void start()
                                 double dAngle = (dx + 0.0) * MOUSE_SENSITIVITY;
                                 dAngle = fabs(dAngle) > MAX_ANGLE_DELTA ? MAX_ANGLE_DELTA * signum(dAngle) : dAngle;
                                 cam.angle += dAngle;
+                        }
+
+                        if (evt.type == SDL_WINDOWEVENT && evt.window.event == SDL_WINDOWEVENT_RESIZED) {
+                                WIDTH = evt.window.data1;
+                                HEIGHT = evt.window.data2;
                         }
                 }
 

@@ -12,6 +12,9 @@ struct camera {
 	double angle;
 };
 
+extern unsigned int WIDTH;
+extern unsigned int HEIGHT;
+
 extern struct camera cam;
 
 void start();

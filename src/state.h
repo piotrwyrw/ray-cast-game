@@ -1,7 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 struct state {
 	SDL_Window *window;
@@ -10,7 +10,7 @@ struct state {
 	_Bool close;
 };
 
-void initialize(struct state *s);
+_Bool initialize(struct state *s);
 void close(struct state *s);
 
 #endif
