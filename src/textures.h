@@ -13,7 +13,7 @@
 
 #define CONCRETE_INDEX 0
 #define BRICKS_INDEX 1
-#define PLASTER_INDEX 1
+#define PLASTER_INDEX 2
 
 extern SDL_Texture *game_textures[];
 

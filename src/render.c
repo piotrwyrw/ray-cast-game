@@ -30,10 +30,10 @@ void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distan
         double length = vector_distance(rc->segment->a, rc->segment->b);
 
         SDL_Rect src = {
-                .x = (rc->seg_distance / length) * ((double) t_width / rc->segment->txt_scale),
+                .x = (int) ((rc->seg_distance / length) * ((double) t_width / rc->segment->txt_scale)) % t_width,
                 .y = 0,
                 .w = 1,
-                .h = t_height / rc->segment->txt_scale
+                .h = (t_height / rc->segment->txt_scale)
         };
 
         SDL_RenderCopy(s->renderer, t, &src, &dst);
