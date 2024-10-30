@@ -6,3 +6,8 @@ game
 compile_commands.json
 .cache
 .DS_Store
+.cmake
+Testing
+.ninja_deps
+.ninja_log
+build.ninja
