@@ -10,8 +10,8 @@ _Bool initialize(struct state *s)
 
         SDL_Init(SDL_INIT_EVERYTHING);
 
-        s->window = SDL_CreateWindow("I like LSD", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                     WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
+        s->window = SDL_CreateWindow("Lysergic Acid Diethylamide", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                     WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
         s->renderer = SDL_CreateRenderer(s->window, -1, SDL_RENDERER_ACCELERATED);
 

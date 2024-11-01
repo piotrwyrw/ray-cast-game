@@ -14,7 +14,7 @@
 #define LIGHT_FALLOFF (50.0)
 
 #define SKY_COLOR 255, 255, 255
-#define FLOOR_COLOR 223, 249, 251
+#define FLOOR_COLOR 90, 90, 90
 
 void render_view(struct state *s);
 

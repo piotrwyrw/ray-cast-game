@@ -3,6 +3,7 @@
 #include "state.h"
 #include "defines.h"
 #include "render.h"
+#include "entity.h"
 
 #include <stdbool.h>
 
@@ -50,6 +51,24 @@ void move_camera(enum walk_direction direction)
         vector_add(&cam.location, &extension);
 }
 
+struct vector bullet_velocity()
+{
+        struct vector vel = vector_dir_angle(cam.angle);
+        vector_mul(&vel, BULLET_SPEED);
+        return vel;
+}
+
+void add_bullet()
+{
+        entity_add((struct entity) {
+                .location = cam.location,
+                .txt_index = ANIMATION_PROJECTILE,
+                .txt_type = TEXTURE_ANIMATED,
+                .data.velocity = bullet_velocity(),
+                .type = ENTITY_PROJECTILE
+        });
+}
+
 void render(struct state *s)
 {
         render_view(s);
@@ -91,6 +110,11 @@ void start()
                                         cam.angle = M_PI * 2.0;
                                 if (cam.angle > M_PI * 2.0)
                                         cam.angle = 0.0;
+                        }
+
+                        if (evt.type == SDL_MOUSEBUTTONDOWN) {
+                                if (evt.button.button == SDL_BUTTON_LEFT)
+                                        add_bullet();
                         }
 
                         if (evt.type == SDL_WINDOWEVENT && evt.window.event == SDL_WINDOWEVENT_RESIZED) {

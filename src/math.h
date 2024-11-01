@@ -22,6 +22,8 @@ void vector_mul(struct vector *vec, double d);
 
 void vector_normalize(struct vector *vec);
 
+double vector_dot(struct vector *a, struct vector *b);
+
 struct vector vector_dir_angle(double angle);
 
 struct vector vector_direction(struct vector *origin, struct vector *end);

@@ -55,6 +55,11 @@ void vector_normalize(struct vector *vec)
         vector_div(vec, vector_length(vec));
 }
 
+double vector_dot(struct vector *a, struct vector *b)
+{
+        return a->x * b->x + a->y + b->y;
+}
+
 struct vector vector_direction(struct vector *origin, struct vector *end)
 {
         struct vector direction = vector_copy(end);

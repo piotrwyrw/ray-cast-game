@@ -3,6 +3,7 @@
 #include "map.h"
 #include "math.h"
 #include "textures.h"
+#include "entity.h"
 
 #include <SDL.h>
 
@@ -114,11 +115,5 @@ void render_view(struct state *s)
 {
         render_sky_and_floor(s);
         render_raycast(s);
-
-        animation_render(ANIMATION_PROJECTILE, s, (struct SDL_Rect) {
-                .x = 30,
-                .y = 30,
-                .w = 50,
-                .h = 50
-        });
+        entity_render_all(s);
 }
