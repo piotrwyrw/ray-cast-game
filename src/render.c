@@ -34,10 +34,15 @@ void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distan
                 .x = (int) ((rc->seg_distance / length) * ((double) t_width / rc->segment->txt_scale)) % t_width,
                 .y = 0,
                 .w = 1,
-                .h = (t_height / rc->segment->txt_scale)
+                .h = (int) (t_height / rc->segment->txt_scale)
         };
 
+        double light_distance = (distance > LIGHT_DISTANCE) ? LIGHT_DISTANCE : distance;
+        double light_intensity = 255 - (LIGHT_FALLOFF / LIGHT_DISTANCE) * light_distance;
+
+        SDL_SetTextureColorMod(txt, (Uint8) light_intensity, (Uint8) light_intensity, (Uint8) light_intensity);
         SDL_RenderCopy(s->renderer, txt, &src, &dst);
+//        SDL_SetTextureColorMod(txt, 255, 255, 255);
 
         SDL_SetRenderDrawColor(s->renderer, 0, 0, 0, 255);
         SDL_RenderDrawPoint(s->renderer, x, HEIGHT / 2 - height);
@@ -101,13 +106,19 @@ void render_raycast(struct state *s)
 
 void render_sky_and_floor(struct state *s)
 {
-        render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false, 0.6);
-        render_gradient(s, HEIGHT / 2, HEIGHT / 2, FLOOR_COLOR, true, 0.5);
+        render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false, 0.4);
+        render_gradient(s, HEIGHT / 2, HEIGHT / 2, FLOOR_COLOR, true, 0.6);
 }
-
 
 void render_view(struct state *s)
 {
         render_sky_and_floor(s);
         render_raycast(s);
+
+        animation_render(ANIMATION_PROJECTILE, s, (struct SDL_Rect) {
+                .x = 30,
+                .y = 30,
+                .w = 50,
+                .h = 50
+        });
 }
