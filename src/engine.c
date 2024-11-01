@@ -6,8 +6,6 @@
 
 #include <stdbool.h>
 
-#include <SDL_image.h>
-
 const Uint8 *keyState;
 
 struct camera cam = {
@@ -15,8 +13,8 @@ struct camera cam = {
         .angle = 0.0
 };
 
-unsigned int WIDTH = 1500;
-unsigned int HEIGHT = 900;
+int WIDTH = 1500;
+int HEIGHT = 900;
 
 enum walk_direction {
         WALK_FORWARD,
@@ -43,7 +41,7 @@ void move_camera(enum walk_direction direction)
 
         if (SIDEWAYS(direction)) {
                 struct vector rotated = vec(-extension.y, extension.x);
-                vector_mul(&rotated, (direction == WALK_RIGHT) ? -WALK_SPEED : WALK_SPEED);
+                vector_mul(&rotated, (direction == WALK_RIGHT) ? WALK_SPEED : -WALK_SPEED);
                 vector_add(&cam.location, &rotated);
                 return;
         }
@@ -54,7 +52,7 @@ void move_camera(enum walk_direction direction)
 
 void render(struct state *s)
 {
-        render_view(s, &cam);
+        render_view(s);
 
         SDL_RenderPresent(s->renderer);
 }
@@ -89,6 +87,10 @@ void start()
                                 double dAngle = (dx + 0.0) * MOUSE_SENSITIVITY;
                                 dAngle = fabs(dAngle) > MAX_ANGLE_DELTA ? MAX_ANGLE_DELTA * signum(dAngle) : dAngle;
                                 cam.angle += dAngle;
+                                if (cam.angle < 0.0)
+                                        cam.angle = M_PI * 2.0;
+                                if (cam.angle > M_PI * 2.0)
+                                        cam.angle = 0.0;
                         }
 
                         if (evt.type == SDL_WINDOWEVENT && evt.window.event == SDL_WINDOWEVENT_RESIZED) {

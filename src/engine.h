@@ -3,17 +3,17 @@
 
 #include "math.h"
 
-#define WALK_SPEED 0.08
+#define WALK_SPEED 0.04
 #define MOUSE_SENSITIVITY 0.001
 #define MAX_ANGLE_DELTA 1.0
 
 struct camera {
-	struct vector location;
-	double angle;
+        struct vector location;
+        double angle;
 };
 
-extern unsigned int WIDTH;
-extern unsigned int HEIGHT;
+extern int WIDTH;
+extern int HEIGHT;
 
 extern struct camera cam;
 

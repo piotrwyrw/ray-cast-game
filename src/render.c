@@ -11,6 +11,7 @@
 
 #define dim(f, r, g, b) f * r, f * g, f * b
 
+// Render the wall with the given segment texture via blitting
 void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distance, _Bool contour)
 {
         int height = WALL_HEIGHT / distance;
@@ -23,9 +24,9 @@ void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distan
                 .h = height * 2
         };
 
-        SDL_Texture *t = game_textures[rc->segment->txt];
+        SDL_Texture *txt = game_textures[rc->segment->txt];
         int t_width, t_height;
-        SDL_QueryTexture(t, NULL, NULL, &t_width, &t_height);
+        SDL_QueryTexture(txt, NULL, NULL, &t_width, &t_height);
 
         double length = vector_distance(rc->segment->a, rc->segment->b);
 
@@ -36,7 +37,7 @@ void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distan
                 .h = (t_height / rc->segment->txt_scale)
         };
 
-        SDL_RenderCopy(s->renderer, t, &src, &dst);
+        SDL_RenderCopy(s->renderer, txt, &src, &dst);
 
         SDL_SetRenderDrawColor(s->renderer, 0, 0, 0, 255);
         SDL_RenderDrawPoint(s->renderer, x, HEIGHT / 2 - height);
@@ -48,10 +49,8 @@ void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distan
         SDL_RenderDrawLine(s->renderer, x, HEIGHT / 2 - height, x, HEIGHT / 2 + height);
 }
 
-void render_gradient(struct state *s, int y, int h, Uint8 r, Uint8 g, Uint8 b, _Bool direction)
+void render_gradient(struct state *s, int y, int h, Uint8 r, Uint8 g, Uint8 b, _Bool direction, double falloff)
 {
-        double falloff = 0.5;
-
         for (int i = 0; i < h; i++) {
                 double df;
                 if (direction)
@@ -66,41 +65,49 @@ void render_gradient(struct state *s, int y, int h, Uint8 r, Uint8 g, Uint8 b, _
 
 #undef dim
 
-void render_raycast(struct state *s, struct camera *cam)
+// Calculate the ray angle via a projection plane. This is to tackle the distortion at the edges of the view.
+inline double outbound_angle(double x)
+{
+        double plane_w = tan(FOV / 2) * PLANE_DISTANCE;
+        plane_w *= 2.0;
+
+        double plane_x = (x / (WIDTH - 1)) * plane_w;
+        plane_x -= plane_w / 2;
+
+        return atan(plane_x / PLANE_DISTANCE) + cam.angle;
+}
+
+void render_raycast(struct state *s)
 {
         struct ray_cast cast;
         struct vector direction;
 
         for (int x = 0; x < WIDTH; x++) {
-                double angle = (-FOV / 2.0) + cam->angle + (FOV / (WIDTH + 0.0)) * (x + 0.0);
+                double angle = outbound_angle(x);
+
                 direction = vector_dir_angle(angle);
+                vector_normalize(&direction);
 
                 struct segment *last_segment = cast.segment;
 
-                if (!cast_ray(&cast, &cam->location, &direction))
+                if (!cast_ray(&cast, &cam.location, &direction))
                         continue;
 
-                render_wall_line(s, &cast, x, cast.real_distance * cos(angle - cam->angle), cast.segment != last_segment);
+                double relativeAngle = angle - cam.angle;
+
+                render_wall_line(s, &cast, x, cast.real_distance * cos(relativeAngle), cast.segment != last_segment);
         }
 }
 
 void render_sky_and_floor(struct state *s)
 {
-        render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false);
-
-        SDL_Rect floor = {
-                .x = 0,
-                .y = HEIGHT / 2,
-                .w = WIDTH,
-                .h = HEIGHT / 2
-        };
-        SDL_SetRenderDrawColor(s->renderer, FLOOR_COLOR, 255);
-        SDL_RenderFillRect(s->renderer, &floor);
+        render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false, 0.6);
+        render_gradient(s, HEIGHT / 2, HEIGHT / 2, FLOOR_COLOR, true, 0.5);
 }
 
 
-void render_view(struct state *s, struct camera *cam)
+void render_view(struct state *s)
 {
         render_sky_and_floor(s);
-        render_raycast(s, cam);
+        render_raycast(s);
 }

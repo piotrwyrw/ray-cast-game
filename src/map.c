@@ -10,26 +10,26 @@
 
 struct vector vertices[] = {
         vert(-5.0, 5.0),
-        vert(-5.0, 0.0),
+        vert(-5.0, -5.0),
         vert(5.0, -5.0),
         vert(5.0, 5.0),
 
-        vert(-0.1, -0.1),
-        vert(0.1, -0.1),
+        vert(-1.0, -0.1),
+        vert(0.5, -0.1),
         vert(0.1, 0.1),
-        vert(-0.1, 0.1)
+        vert(-1.0, 0.1),
 };
 
 struct segment segments[] = {
-        sgt(0, 1, CONCRETE_INDEX, 0.1),
-        sgt(1, 2, CONCRETE_INDEX, 0.1),
-        sgt(2, 3, CONCRETE_INDEX, 0.1),
-        sgt(3, 0, CONCRETE_INDEX, 0.1),
+        sgt(0, 1, CONCRETE_INDEX, 0.15),
+        sgt(1, 2, CONCRETE_INDEX, 0.15),
+        sgt(2, 3, CONCRETE_INDEX, 0.15),
+        sgt(3, 0, CONCRETE_INDEX, 0.15),
 
         sgt(4, 5, BRICKS_INDEX, 1.0),
         sgt(5, 6, BRICKS_INDEX, 1.0),
         sgt(6, 7, BRICKS_INDEX, 1.0),
-        sgt(7, 4, BRICKS_INDEX, 1.0),
+        sgt(7, 4, BRICKS_INDEX, 1.0)
 };
 
 _Bool ray_segment(struct ray_cast *cast, double originX, double originY, double dirX, double dirY, struct segment *seg)

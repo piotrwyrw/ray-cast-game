@@ -12,13 +12,15 @@
                 return false;               \
         }
 
-SDL_Texture* game_textures[TEXTURE_COUNT] = { NULL };
+SDL_Texture *game_textures[TEXTURE_COUNT] = {NULL};
 
 _Bool load_textures(struct state *s)
 {
         LOAD_TEXTURE(BRICKS_INDEX, ASSET_PATH_BRICKS)
         LOAD_TEXTURE(CONCRETE_INDEX, ASSET_PATH_CONCRETE)
         LOAD_TEXTURE(PLASTER_INDEX, ASSET_PATH_PLASTER)
+        LOAD_TEXTURE(ROCK_INDEX, ASSET_PATH_ROCK)
+        LOAD_TEXTURE(TILES_INDEX, ASSET_PATH_TILES)
 
         return true;
 }
