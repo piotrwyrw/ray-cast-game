@@ -21,11 +21,18 @@ _Bool load_textures(struct state *s)
         LOAD_TEXTURE(PLASTER_INDEX, ASSET_PATH_PLASTER)
         LOAD_TEXTURE(ROCK_INDEX, ASSET_PATH_ROCK)
         LOAD_TEXTURE(TILES_INDEX, ASSET_PATH_TILES)
+        LOAD_TEXTURE(HEART_INDEX, ASSET_PATH_HEART)
+        LOAD_TEXTURE(EMPTY_HEART_INDEX, ASSET_PATH_EMPTY_HEART)
+        LOAD_TEXTURE(WISP_INDEX, ASSET_PATH_WISP)
+        LOAD_TEXTURE(FLASH_INDEX, ASSET_PATH_FLASH)
+        LOAD_TEXTURE(EXPLOSION_INDEX, ASSET_PATH_EXPLOSION)
 
         LOAD_TEXTURE(PROJECTILE_INDEX, ASSET_PATH_PROJECTILE)
 
         return true;
 }
+
+#define rect(_x, _y, _w, _h) (struct SDL_Rect) { .x = _x, .y = _y, .w = _w, .h = _h }
 
 struct animation game_animation[] = {
         {
@@ -33,6 +40,7 @@ struct animation game_animation[] = {
                 .current_frame = 0,
                 .frame_count = 4,
                 .frame_duration = 70,
+                .type = ANIMATION_MODE_CONTINUOUS,
                 .frames = {
                         (struct SDL_Rect) {
                                 .x = 0, .y = 0,
@@ -51,26 +59,97 @@ struct animation game_animation[] = {
                                 .w = 32, .h = 30
                         }
                 }
+        },
+        {
+                .index = WISP_INDEX,
+                .current_frame = 0,
+                .frame_count = 10,
+                .frame_duration = 70,
+                .type = ANIMATION_MODE_CONTINUOUS,
+                .frames = {
+                        rect(0, 0, 32, 32),
+                        rect(32, 0, 32, 32),
+                        rect(32 * 2, 0, 32, 32),
+                        rect(32 * 3, 0, 32, 32),
+                        rect(32 * 4, 0, 32, 32),
+                        rect(32 * 5, 0, 32, 32),
+                        rect(32 * 6, 0, 32, 32),
+                        rect(32 * 7, 0, 32, 32),
+                        rect(32 * 8, 0, 32, 32),
+                        rect(32 * 9, 0, 32, 32),
+                }
+        },
+        {
+                .index = FLASH_INDEX,
+                .current_frame = 0,
+                .frame_count = 9,
+                .frame_duration = 20,
+                .type = ANIMATION_MODE_ONE_SHOT,
+                .armed = false,
+                .frames = {
+                        rect(0, 0, 1, 1),
+                        rect(1, 0, 1, 1),
+                        rect(2, 0, 1, 1),
+                        rect(3, 0, 1, 1),
+                        rect(4, 0, 1, 1),
+                        rect(5, 0, 1, 1),
+                        rect(6, 0, 1, 1),
+                        rect(7, 0, 1, 1),
+                        rect(8, 0, 1, 1),
+                        rect(9, 0, 1, 1),
+                }
+        },
+        {
+                .index = EXPLOSION_INDEX,
+                .current_frame = 0,
+                .frame_count = 11,
+                .frame_duration = 20,
+                .type = ANIMATION_MODE_ONE_SHOT,
+                .armed = true,
+                .frames = {
+                        rect(0, 0, 512, 512),
+                        rect(512, 0, 512, 512),
+                        rect(512 * 2, 0, 512, 512),
+                        rect(512 * 3, 0, 512, 512),
+                        rect(512 * 4, 0, 512, 512),
+                        rect(512 * 5, 0, 512, 512),
+                        rect(512 * 6, 0, 512, 512),
+                        rect(512 * 7, 0, 512, 512),
+                        rect(512 * 8, 0, 512, 512),
+                        rect(512 * 9, 0, 512, 512)
+                }
         }
 };
 
-void animation_render(unsigned int index, struct state *s, SDL_Rect dst)
-{
-        struct animation *anim = &game_animation[index];
+#undef rect
 
+void animation_render(struct animation *anim, struct state *s, SDL_Rect dst)
+{
         if (anim->frame_count == 0)
+                return;
+
+        if (anim->type == ANIMATION_MODE_ONE_SHOT && !anim->armed)
                 return;
 
         Uint32 current_time = SDL_GetTicks();
         if (current_time > anim->last_frame + anim->frame_duration) {
                 anim->current_frame++;
                 anim->last_frame = current_time;
-                if (anim->current_frame >= anim->frame_count)
+                if (anim->current_frame >= anim->frame_count) {
                         anim->current_frame = 0;
+                        anim->armed = false;
+                        if (anim->type == ANIMATION_MODE_ONE_SHOT)
+                                return;
+                }
         }
 
         SDL_Rect *src = &anim->frames[anim->current_frame];
         SDL_RenderCopy(s->renderer, game_textures[anim->index], src, &dst);
+}
+
+struct animation get_animation(unsigned int index)
+{
+        return game_animation[index];
 }
 
 #undef LOAD_TEXTURE

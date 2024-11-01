@@ -13,6 +13,8 @@
 #define LIGHT_DISTANCE (10.0)
 #define LIGHT_FALLOFF (50.0)
 
+#define CROSSHAIR_SIZE 10
+
 #define SKY_COLOR 255, 255, 255
 #define FLOOR_COLOR 90, 90, 90
 

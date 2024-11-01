@@ -55,6 +55,15 @@ void vector_normalize(struct vector *vec)
         vector_div(vec, vector_length(vec));
 }
 
+void vector_limit(struct vector *vec, double d)
+{
+        if (vector_length(vec) <= d)
+                return;
+
+        vector_normalize(vec);
+        vector_mul(vec, d);
+}
+
 double vector_dot(struct vector *a, struct vector *b)
 {
         return a->x * b->x + a->y + b->y;

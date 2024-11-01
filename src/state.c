@@ -1,5 +1,6 @@
 #include "textures.h"
 #include "engine.h"
+#include "state.h"
 
 #include <stdbool.h>
 
@@ -25,7 +26,10 @@ _Bool initialize(struct state *s)
                 return false;
 
         SDL_SetRelativeMouseMode(true);
+
         s->close = false;
+
+        s->flash_anim = get_animation(ANIMATION_FLASH);
 
         return true;
 }

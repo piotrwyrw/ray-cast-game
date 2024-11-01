@@ -1,7 +1,11 @@
 #include "entity.h"
 #include "engine.h"
+#include "textures.h"
 #include "render.h"
 #include "map.h"
+#include "health.h"
+
+#include <stdbool.h>
 
 struct entity game_entities[MAX_ENTITIES] = {ENTITY_NONE};
 
@@ -16,15 +20,86 @@ void entity_render_all(struct state *s)
         }
 }
 
-void entity_render_update(struct entity *e, struct state *s)
+static void entity_update_projectile(struct entity *e)
 {
-        if (e->type != ENTITY_PROJECTILE)
+        if (vector_distance(&cam.location, &e->location) > MAX_PROJECTILE_DISTANCE) {
+                e->type = ENTITY_NONE;
+                return;
+        }
+
+        struct entity *tmp_e;
+        double distance;
+
+        for (unsigned int i = 0; i < MAX_ENTITIES; i ++) {
+                tmp_e = &game_entities[i];
+
+                if (tmp_e->type != ENTITY_ENEMY_WISP)
+                        continue;
+
+                distance = vector_distance(&e->location, &tmp_e->location);
+
+                if (distance > BULLET_THRESHOLD_DISTANCE)
+                        continue;
+
+                e->type = ENTITY_NONE;
+                tmp_e->flags |= ENTITY_DYING;
+                tmp_e->anim = get_animation(ANIMATION_EXPLOSION);
+                return;
+        }
+
+        struct vector direction = e->velocity;
+        vector_normalize(&direction);
+
+        struct ray_cast cast;
+        if (!cast_ray(&cast, &e->location, &direction))
                 return;
 
-        vector_add(&e->location, &e->data.velocity);
+        if (cast.real_distance > BULLET_THRESHOLD_DISTANCE)
+                return;
 
-        if (vector_distance(&cam.location, &e->location) > MAX_PROJECTILE_DISTANCE)
+        e->anim = get_animation(ANIMATION_EXPLOSION);
+        e->velocity = vec(0.0, 0.0);
+        e->accel = vec(0.0, 0.0);
+        e->width = 300;
+        e->height = e->width;
+        e->flags |= ENTITY_DYING;
+}
+
+static void entity_update_wisp(struct state *s, struct entity *e)
+{
+        double p_distance = vector_distance(&e->location, &cam.location);
+
+        if (p_distance <= ENEMY_THRESHOLD_DISTANCE && SDL_GetTicks() - e->spawn_time > WISP_ACTIVATION_TIME) {
                 e->type = ENTITY_NONE;
+                s->flash_anim.armed = true;
+                damage_health(1);
+        }
+
+        struct vector direction = cam.location;
+        vector_sub(&direction, &e->location);
+        vector_normalize(&direction);
+        e->accel = direction;
+}
+
+void entity_render_update(struct entity *e, struct state *s)
+{
+        if (e->flags & ENTITY_DYING && !e->anim.armed) {
+                e->type = ENTITY_NONE;
+                return;
+        }
+
+        if (e->type == ENTITY_PROJECTILE)
+                entity_update_projectile(e);
+
+        if (e->type == ENTITY_ENEMY_WISP)
+                entity_update_wisp(s, e);
+
+        vector_add(&e->velocity, &e->accel);
+
+        if (e->type == ENTITY_ENEMY_WISP)
+                vector_limit(&e->velocity, WISP_VELOCITY);
+
+        vector_add(&e->location, &e->velocity);
 
         entity_render(e, s);
 }
@@ -57,13 +132,13 @@ void entity_render(struct entity *e, struct state *s)
         double offset_factor = angle / (FOV / 2.0);
         int sprite_x = (int) (WIDTH / 2.0 + (offset_factor * (WIDTH / 2.0)));
 
-        int sprite_w = (int) (50 / distance);
-        int sprite_h = (int) (50 / distance);
+        int sprite_w = (int) (e->width / distance);
+        int sprite_h = (int) (e->height / distance);
 
         if (sprite_w < MIN_ENTITY_SIZE) sprite_w = MIN_ENTITY_SIZE;
         if (sprite_h < MIN_ENTITY_SIZE) sprite_h = MIN_ENTITY_SIZE;
 
-        animation_render(e->txt_index, s, (SDL_Rect) {
+        animation_render(&e->anim, s, (SDL_Rect) {
                 .x = sprite_x - (sprite_w / 2),
                 .y = y - (sprite_h / 2),
                 .w = sprite_w,

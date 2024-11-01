@@ -17,7 +17,9 @@ add_executable(game
         src/math.c
         src/render.c
         src/textures.c
-        src/entity.c)
+        src/entity.c
+        src/health.c
+)
 
 target_link_libraries(game SDL2::SDL2 SDL2_image::SDL2_image)
 

@@ -4,6 +4,7 @@
 #include "math.h"
 #include "textures.h"
 #include "entity.h"
+#include "health.h"
 
 #include <SDL.h>
 
@@ -111,9 +112,19 @@ void render_sky_and_floor(struct state *s)
         render_gradient(s, HEIGHT / 2, HEIGHT / 2, FLOOR_COLOR, true, 0.6);
 }
 
+void render_crosshair(struct state *s)
+{
+        SDL_SetRenderDrawColor(s->renderer, 255, 255, 255, 255);
+        SDL_RenderDrawLine(s->renderer, WIDTH / 2 - CROSSHAIR_SIZE, HEIGHT / 2, WIDTH / 2 + CROSSHAIR_SIZE, HEIGHT / 2);
+        SDL_RenderDrawLine(s->renderer, WIDTH / 2, HEIGHT / 2 - CROSSHAIR_SIZE, WIDTH / 2, HEIGHT / 2 + CROSSHAIR_SIZE);
+}
+
 void render_view(struct state *s)
 {
         render_sky_and_floor(s);
         render_raycast(s);
         entity_render_all(s);
+        render_crosshair(s);
+        render_health_bar(s);
+        animation_render(&s->flash_anim, s, (SDL_Rect) {.x = 0, .y = 0, .w = WIDTH, .h = HEIGHT});
 }

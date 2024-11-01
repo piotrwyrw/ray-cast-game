@@ -6,26 +6,38 @@
 
 #define MAX_ENTITIES 100
 #define MAX_PROJECTILE_DISTANCE 10
+#define WISP_VELOCITY 0.03
 
-enum texture_type {
-        TEXTURE_STATIC,
-        TEXTURE_ANIMATED
-};
+#define BULLET_SIZE 50
+#define WISP_SIZE 200
+
+#define WISP_ACTIVATION_TIME 500
+
+#define ENEMY_THRESHOLD_DISTANCE 0.1
+#define BULLET_THRESHOLD_DISTANCE 0.1
 
 enum entity_type {
         ENTITY_NONE,
-        ENTITY_PROJECTILE
+        ENTITY_PROJECTILE,
+        ENTITY_ENEMY_WISP
 };
+
+#define ENTITY_DYING (1 << 0)
 
 struct entity {
         enum entity_type type;
 
-        union {
-                struct vector velocity;
-        } data;
+        Uint8 flags;
 
-        enum texture_type txt_type;
-        unsigned int txt_index;         // Points to a texture or an animation
+        unsigned int width;
+        unsigned int height;
+
+        struct vector accel;
+        struct vector velocity;
+
+        Uint32 spawn_time;
+
+        struct animation anim;
         struct vector location;
 };
 

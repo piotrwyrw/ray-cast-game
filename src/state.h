@@ -3,9 +3,13 @@
 
 #include "SDL.h"
 
+#include "textures.h"
+
 struct state {
         SDL_Window *window;
         SDL_Renderer *renderer;
+
+        struct animation flash_anim;
 
         _Bool close;
 };

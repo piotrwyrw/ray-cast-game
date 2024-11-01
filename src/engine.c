@@ -17,6 +17,9 @@ struct camera cam = {
 int WIDTH = 1500;
 int HEIGHT = 900;
 
+Uint32 last_projectile = 0;
+_Bool machine_gun = false;
+
 enum walk_direction {
         WALK_FORWARD,
         WALK_BACKWARD,
@@ -62,10 +65,25 @@ void add_bullet()
 {
         entity_add((struct entity) {
                 .location = cam.location,
-                .txt_index = ANIMATION_PROJECTILE,
-                .txt_type = TEXTURE_ANIMATED,
-                .data.velocity = bullet_velocity(),
-                .type = ENTITY_PROJECTILE
+                .anim = get_animation(ANIMATION_PROJECTILE),
+                .velocity = bullet_velocity(),
+                .width = BULLET_SIZE,
+                .height = BULLET_SIZE,
+                .type = ENTITY_PROJECTILE,
+                .spawn_time = SDL_GetTicks()
+        });
+}
+
+void summon_wisp(struct vector location)
+{
+        entity_add((struct entity) {
+                .location = location,
+                .anim = get_animation(ANIMATION_WISP),
+                .velocity = vec(0.0, 0.0),
+                .width = WISP_SIZE,
+                .height = WISP_SIZE,
+                .type = ENTITY_ENEMY_WISP,
+                .spawn_time = SDL_GetTicks()
         });
 }
 
@@ -115,7 +133,17 @@ void start()
                         if (evt.type == SDL_MOUSEBUTTONDOWN) {
                                 if (evt.button.button == SDL_BUTTON_LEFT)
                                         add_bullet();
+
+                                if (evt.button.button == SDL_BUTTON_RIGHT)
+                                        machine_gun = true;
+
+                                if (evt.button.button == SDL_BUTTON_MIDDLE)
+                                        summon_wisp(cam.location);
                         }
+
+                        if (evt.type == SDL_MOUSEBUTTONUP)
+                                if (evt.button.button == SDL_BUTTON_RIGHT)
+                                        machine_gun = false;
 
                         if (evt.type == SDL_WINDOWEVENT && evt.window.event == SDL_WINDOWEVENT_RESIZED) {
                                 WIDTH = evt.window.data1;
@@ -124,6 +152,14 @@ void start()
                 }
 
                 keyState = SDL_GetKeyboardState(NULL);
+
+                if (machine_gun) {
+                        Uint32 current_time = SDL_GetTicks();
+                        if (current_time - last_projectile > MACHINE_GUN_DELAY) {
+                                last_projectile = current_time;
+                                add_bullet();
+                        }
+                }
 
                 if (keyState[SDL_SCANCODE_ESCAPE])
                         s.close = true;

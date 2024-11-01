@@ -1,11 +1,9 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
 
-#include "state.h"
-
 #include <SDL.h>
 
-#define TEXTURE_COUNT 10
+#define TEXTURE_COUNT 20
 
 #define ASSET_PATH_CONCRETE "assets/concrete.jpg"
 #define ASSET_PATH_BRICKS "assets/bricks.jpg"
@@ -13,6 +11,11 @@
 #define ASSET_PATH_ROCK "assets/rock.jpg"
 #define ASSET_PATH_TILES "assets/tiles.jpg"
 #define ASSET_PATH_PROJECTILE "assets/projectile.png"
+#define ASSET_PATH_HEART "assets/heart.png"
+#define ASSET_PATH_EMPTY_HEART "assets/empty_heart.png"
+#define ASSET_PATH_WISP "assets/wisp.png"
+#define ASSET_PATH_FLASH "assets/flash.png"
+#define ASSET_PATH_EXPLOSION "assets/explosion.png"
 
 #define CONCRETE_INDEX 0
 #define BRICKS_INDEX 1
@@ -20,12 +23,28 @@
 #define ROCK_INDEX 3
 #define TILES_INDEX 4
 #define PROJECTILE_INDEX 5
+#define HEART_INDEX 6
+#define EMPTY_HEART_INDEX 7
+#define WISP_INDEX 8
+#define FLASH_INDEX 9
+#define EXPLOSION_INDEX 10
 
 #define MAX_FRAMES 10
 
+struct state;
+
 extern SDL_Texture *game_textures[];
 
+_Bool load_textures(struct state *s);
+
+enum animation_type {
+        ANIMATION_MODE_CONTINUOUS,
+        ANIMATION_MODE_ONE_SHOT
+};
+
 struct animation {
+        enum animation_type type;
+        _Bool armed;
         unsigned int index;
         unsigned int frame_count;
         unsigned int current_frame;
@@ -35,11 +54,14 @@ struct animation {
 };
 
 #define ANIMATION_PROJECTILE 0
+#define ANIMATION_WISP 1
+#define ANIMATION_FLASH 2
+#define ANIMATION_EXPLOSION 3
 
 extern struct animation game_animations[];
 
-_Bool load_textures(struct state *s);
+void animation_render(struct animation *anim, struct state *s, SDL_Rect dst);
 
-void animation_render(unsigned int index, struct state *s, SDL_Rect dst);
+struct animation get_animation(unsigned int index);
 
 #endif
