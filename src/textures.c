@@ -26,15 +26,17 @@ _Bool load_textures(struct state *s)
         LOAD_TEXTURE(WISP_INDEX, ASSET_PATH_WISP)
         LOAD_TEXTURE(FLASH_INDEX, ASSET_PATH_FLASH)
         LOAD_TEXTURE(EXPLOSION_INDEX, ASSET_PATH_EXPLOSION)
-
+        LOAD_TEXTURE(SHROOM_INDEX, ASSET_PATH_SHROOM)
         LOAD_TEXTURE(PROJECTILE_INDEX, ASSET_PATH_PROJECTILE)
+        LOAD_TEXTURE(IDLE_INDEX, ASSET_PATH_IDLE)
+        LOAD_TEXTURE(CHARGING_INDEX, ASSET_PATH_CHARGING)
 
         return true;
 }
 
 #define rect(_x, _y, _w, _h) (struct SDL_Rect) { .x = _x, .y = _y, .w = _w, .h = _h }
 
-struct animation game_animation[] = {
+struct animation game_animations[] = {
         {
                 .index = PROJECTILE_INDEX,
                 .current_frame = 0,
@@ -118,6 +120,64 @@ struct animation game_animation[] = {
                         rect(512 * 8, 0, 512, 512),
                         rect(512 * 9, 0, 512, 512)
                 }
+        },
+        {
+                .index = SHROOM_INDEX,
+                .current_frame = 0,
+                .frame_count = 1,
+                .frame_duration = 1000,
+                .type = ANIMATION_MODE_CONTINUOUS,
+                .frames = {
+                        rect(0, 0, 70, 70)
+                }
+        },
+        {
+                .index = IDLE_INDEX,
+                .current_frame = 0,
+                .frame_count = 11,
+                .frame_duration = 50,
+                .type = ANIMATION_MODE_CONTINUOUS,
+                .frames = {
+                        rect(0, 0, 24, 32),
+                        rect(24, 0, 24, 32),
+                        rect(24 * 2, 0, 24, 32),
+                        rect(24 * 3, 0, 24, 32),
+                        rect(24 * 4, 0, 24, 32),
+                        rect(24 * 5, 0, 24, 32),
+                        rect(24 * 6, 0, 24, 32),
+                        rect(24 * 7, 0, 24, 32),
+                        rect(24 * 8, 0, 24, 32),
+                        rect(24 * 9, 0, 24, 32),
+                        rect(24 * 10, 0, 24, 32),
+                }
+        },
+        {
+                .index = CHARGING_INDEX,
+                .current_frame = 0,
+                .frame_count = 9,
+                .frame_duration = 50,
+                .type = ANIMATION_MODE_ONE_SHOT,
+                .armed = true,
+                .frames = {
+                        rect(0, 0, 24, 37),
+                        rect(43, 0, 24, 37),
+                        rect(43 * 2, 0, 24, 37),
+                        rect(43 * 3, 0, 24, 37),
+                        rect(43 * 4, 0, 24, 37),
+                        rect(43 * 5, 0, 24, 37),
+                        rect(43 * 6, 0, 24, 37),
+                        rect(43 * 7, 0, 24, 37),
+                        rect(43 * 8, 0, 24, 37),
+                        rect(43 * 9, 0, 24, 37),
+                        rect(43 * 10, 0, 24, 37),
+                        rect(43 * 11, 0, 24, 37),
+                        rect(43 * 12, 0, 24, 37),
+                        rect(43 * 13, 0, 24, 37),
+                        rect(43 * 14, 0, 24, 37),
+                        rect(43 * 15, 0, 24, 37),
+                        rect(43 * 16, 0, 24, 37),
+                        rect(43 * 17, 0, 24, 37)
+                }
         }
 };
 
@@ -149,7 +209,7 @@ void animation_render(struct animation *anim, struct state *s, SDL_Rect dst)
 
 struct animation get_animation(unsigned int index)
 {
-        return game_animation[index];
+        return game_animations[index];
 }
 
 #undef LOAD_TEXTURE

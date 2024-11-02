@@ -5,7 +5,6 @@
 
 #include "math.h"
 
-#define WALK_SPEED 0.07
 #define MOUSE_SENSITIVITY 0.001
 #define MAX_ANGLE_DELTA 1.0
 #define BULLET_SPEED 0.1
@@ -13,6 +12,9 @@
 #define MIN_ENTITY_SIZE 5
 
 #define MACHINE_GUN_DELAY 100
+
+#define ORIGINAL_WALK_SPEED 0.07
+extern double WALK_SPEED;
 
 struct camera {
         struct vector location;

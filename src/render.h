@@ -6,7 +6,10 @@
 
 #include <SDL_render.h>
 
-#define FOV (90 * (M_PI / 180))
+#define ORIGINAL_FOV (90 * (M_PI / 180))
+
+extern double FOV;
+
 #define PLANE_DISTANCE (2)
 #define WALL_HEIGHT (HEIGHT / 2)
 

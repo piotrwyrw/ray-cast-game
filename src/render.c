@@ -5,6 +5,7 @@
 #include "textures.h"
 #include "entity.h"
 #include "health.h"
+#include "drugs.h"
 
 #include <SDL.h>
 
@@ -12,6 +13,8 @@
 #include <math.h>
 
 #define dim(f, r, g, b) f * r, f * g, f * b
+
+double FOV = ORIGINAL_FOV;
 
 // Render the wall with the given segment texture via blitting
 void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distance, _Bool contour)
@@ -121,10 +124,17 @@ void render_crosshair(struct state *s)
 
 void render_view(struct state *s)
 {
+        drugs_apply();
         render_sky_and_floor(s);
         render_raycast(s);
         entity_render_all(s);
         render_crosshair(s);
         render_health_bar(s);
+
+        SDL_SetRenderDrawBlendMode(s->renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(s->renderer, 100, 0, 255, (255 / 2) * drugs_current_intensity(M_PI / 2));
+        SDL_Rect rect = {0, 0, WIDTH, HEIGHT};
+        SDL_RenderFillRect(s->renderer, &rect);
+
         animation_render(&s->flash_anim, s, (SDL_Rect) {.x = 0, .y = 0, .w = WIDTH, .h = HEIGHT});
 }

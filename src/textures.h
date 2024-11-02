@@ -16,6 +16,9 @@
 #define ASSET_PATH_WISP "assets/wisp.png"
 #define ASSET_PATH_FLASH "assets/flash.png"
 #define ASSET_PATH_EXPLOSION "assets/explosion.png"
+#define ASSET_PATH_SHROOM "assets/shroom.png"
+#define ASSET_PATH_IDLE "assets/idle.png"
+#define ASSET_PATH_CHARGING "assets/charging.png"
 
 #define CONCRETE_INDEX 0
 #define BRICKS_INDEX 1
@@ -28,8 +31,11 @@
 #define WISP_INDEX 8
 #define FLASH_INDEX 9
 #define EXPLOSION_INDEX 10
+#define SHROOM_INDEX 11
+#define IDLE_INDEX 12
+#define CHARGING_INDEX 13
 
-#define MAX_FRAMES 10
+#define MAX_FRAMES 20
 
 struct state;
 
@@ -57,6 +63,9 @@ struct animation {
 #define ANIMATION_WISP 1
 #define ANIMATION_FLASH 2
 #define ANIMATION_EXPLOSION 3
+#define ANIMATION_SHROOM 4
+#define ANIMATION_IDLE 5
+#define ANIMATION_CHARGING 6
 
 extern struct animation game_animations[];
 

@@ -4,6 +4,7 @@
 #include "render.h"
 #include "map.h"
 #include "health.h"
+#include "drugs.h"
 
 #include <stdbool.h>
 
@@ -30,19 +31,19 @@ static void entity_update_projectile(struct entity *e)
         struct entity *tmp_e;
         double distance;
 
-        for (unsigned int i = 0; i < MAX_ENTITIES; i ++) {
+        for (unsigned int i = 0; i < MAX_ENTITIES; i++) {
                 tmp_e = &game_entities[i];
 
-                if (tmp_e->type != ENTITY_ENEMY_WISP)
+                if ((tmp_e->type != ENTITY_ENEMY_WISP && tmp_e->type != ENTITY_ENEMY_SKELETON) || tmp_e->flags & ENTITY_FLAG_DYING)
                         continue;
 
                 distance = vector_distance(&e->location, &tmp_e->location);
 
-                if (distance > BULLET_THRESHOLD_DISTANCE)
+                if (distance > THRESHOLD_DISTANCE)
                         continue;
 
                 e->type = ENTITY_NONE;
-                tmp_e->flags |= ENTITY_DYING;
+                tmp_e->flags |= ENTITY_FLAG_DYING;
                 tmp_e->anim = get_animation(ANIMATION_EXPLOSION);
                 return;
         }
@@ -54,7 +55,7 @@ static void entity_update_projectile(struct entity *e)
         if (!cast_ray(&cast, &e->location, &direction))
                 return;
 
-        if (cast.real_distance > BULLET_THRESHOLD_DISTANCE)
+        if (cast.real_distance > THRESHOLD_DISTANCE)
                 return;
 
         e->anim = get_animation(ANIMATION_EXPLOSION);
@@ -62,18 +63,45 @@ static void entity_update_projectile(struct entity *e)
         e->accel = vec(0.0, 0.0);
         e->width = 300;
         e->height = e->width;
-        e->flags |= ENTITY_DYING;
+        e->flags |= ENTITY_FLAG_DYING;
 }
 
-static void entity_update_wisp(struct state *s, struct entity *e)
+static void entity_update_living(struct state *s, struct entity *e)
 {
         double p_distance = vector_distance(&e->location, &cam.location);
 
-        if (p_distance <= ENEMY_THRESHOLD_DISTANCE && SDL_GetTicks() - e->spawn_time > WISP_ACTIVATION_TIME) {
-                e->type = ENTITY_NONE;
-                s->flash_anim.armed = true;
-                damage_health(1);
+        if (SDL_GetTicks() - e->spawn_time > ENEMY_ACTIVATION_TIME) {
+
+                if (e->type == ENTITY_ENEMY_WISP && p_distance <= THRESHOLD_DISTANCE) {
+                        e->type = ENTITY_NONE;
+                        s->flash_anim.armed = true;
+                        damage_health(1);
+                        return;
+                }
+
+                if (e->type == ENTITY_ENEMY_SKELETON && !(e->flags & ENTITY_FLAG_CHARGING) && p_distance <= SKELETON_REACH) {
+                        e->flags |= ENTITY_FLAG_CHARGING;
+                        e->anim = get_animation(ANIMATION_CHARGING);
+                        return;
+                }
+
         }
+
+        if (e->flags & ENTITY_FLAG_CHARGING && !e->anim.armed) {
+                e->anim = get_animation(ANIMATION_IDLE);
+
+                e->flags ^= ENTITY_FLAG_CHARGING;
+
+                if (p_distance <= SKELETON_REACH) {
+                        s->flash_anim.armed = true;
+                        damage_health(1);
+                }
+
+                return;
+        }
+
+        if (e->type != ENTITY_ENEMY_WISP)
+                return;
 
         struct vector direction = cam.location;
         vector_sub(&direction, &e->location);
@@ -81,9 +109,20 @@ static void entity_update_wisp(struct state *s, struct entity *e)
         e->accel = direction;
 }
 
+static void entity_update_drug(struct entity *e)
+{
+        double distance = vector_distance(&e->location, &cam.location);
+
+        if (distance > THRESHOLD_DISTANCE)
+                return;
+
+        e->type = ENTITY_NONE;
+        drugs_consume();
+}
+
 void entity_render_update(struct entity *e, struct state *s)
 {
-        if (e->flags & ENTITY_DYING && !e->anim.armed) {
+        if (e->flags & ENTITY_FLAG_DYING && !e->anim.armed) {
                 e->type = ENTITY_NONE;
                 return;
         }
@@ -91,8 +130,11 @@ void entity_render_update(struct entity *e, struct state *s)
         if (e->type == ENTITY_PROJECTILE)
                 entity_update_projectile(e);
 
-        if (e->type == ENTITY_ENEMY_WISP)
-                entity_update_wisp(s, e);
+        if (e->type == ENTITY_ENEMY_WISP || e->type == ENTITY_ENEMY_SKELETON)
+                entity_update_living(s, e);
+
+        if (e->type == ENTITY_DRUG)
+                entity_update_drug(e);
 
         vector_add(&e->velocity, &e->accel);
 
@@ -108,8 +150,6 @@ void entity_render_update(struct entity *e, struct state *s)
 // The Y coordinate is always HEIGHT / 2
 void entity_render(struct entity *e, struct state *s)
 {
-        const int y = HEIGHT / 2;
-
         // Angle wrt. to the viewport
         double angle = atan2(e->location.y - cam.location.y, e->location.x - cam.location.x) - cam.angle;
 
@@ -119,14 +159,13 @@ void entity_render(struct entity *e, struct state *s)
         if (angle < -FOV / 2 || angle > FOV / 2)
                 return;
 
-        double distance = vector_distance(&e->location, &cam.location);
+        double distance = vector_distance(&e->location, &cam.location) * cos(angle);
 
         // Check if the entity is covered by a wall
         struct ray_cast cast;
         struct vector ray_dir = vector_dir_angle(angle + cam.angle);
-        if (cast_ray(&cast, &cam.location, &ray_dir))
-                if (cast.real_distance < distance)
-                        return;
+        if (cast_ray(&cast, &cam.location, &ray_dir) && cast.real_distance < distance)
+                return;
 
         // [-1 .. 1]
         double offset_factor = angle / (FOV / 2.0);
@@ -138,9 +177,11 @@ void entity_render(struct entity *e, struct state *s)
         if (sprite_w < MIN_ENTITY_SIZE) sprite_w = MIN_ENTITY_SIZE;
         if (sprite_h < MIN_ENTITY_SIZE) sprite_h = MIN_ENTITY_SIZE;
 
+        int sprite_y = HEIGHT / 2 - (sprite_h / 2) + (int) (e->y_off / distance);
+
         animation_render(&e->anim, s, (SDL_Rect) {
                 .x = sprite_x - (sprite_w / 2),
-                .y = y - (sprite_h / 2),
+                .y = sprite_y,
                 .w = sprite_w,
                 .h = sprite_h
         });

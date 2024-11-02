@@ -11,18 +11,25 @@
 #define BULLET_SIZE 50
 #define WISP_SIZE 200
 
-#define WISP_ACTIVATION_TIME 500
+#define SKELETON_WIDTH (24 * 35)
+#define SKELETON_HEIGHT (32 * 35)
 
-#define ENEMY_THRESHOLD_DISTANCE 0.1
-#define BULLET_THRESHOLD_DISTANCE 0.1
+#define ENEMY_ACTIVATION_TIME 500
+
+#define THRESHOLD_DISTANCE 0.2
+#define SKELETON_REACH 2.0
 
 enum entity_type {
         ENTITY_NONE,
         ENTITY_PROJECTILE,
-        ENTITY_ENEMY_WISP
+        ENTITY_ENEMY_WISP,
+        ENTITY_DRUG,
+        ENTITY_SPRITE,
+        ENTITY_ENEMY_SKELETON
 };
 
-#define ENTITY_DYING (1 << 0)
+#define ENTITY_FLAG_DYING (1 << 0)
+#define ENTITY_FLAG_CHARGING (1 << 1)
 
 struct entity {
         enum entity_type type;
@@ -31,6 +38,8 @@ struct entity {
 
         unsigned int width;
         unsigned int height;
+
+        unsigned int y_off;
 
         struct vector accel;
         struct vector velocity;

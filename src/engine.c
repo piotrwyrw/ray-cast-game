@@ -14,6 +14,8 @@ struct camera cam = {
         .angle = 0.0
 };
 
+double WALK_SPEED = 0.07;
+
 int WIDTH = 1500;
 int HEIGHT = 900;
 
@@ -87,6 +89,31 @@ void summon_wisp(struct vector location)
         });
 }
 
+void summon_shroom(struct vector location)
+{
+        entity_add((struct entity) {
+                .location = location,
+                .anim = get_animation(ANIMATION_SHROOM),
+                .y_off = 200,
+                .velocity = vec(0.0, 0.0),
+                .width = WISP_SIZE * 3,
+                .height = WISP_SIZE * 3,
+                .type = ENTITY_DRUG,
+                .spawn_time = SDL_GetTicks()
+        });
+
+        entity_add((struct entity) {
+                .location = location,
+                .anim = get_animation(ANIMATION_IDLE),
+                .y_off = 100,
+                .velocity = vec(0.0, 0.0),
+                .width = SKELETON_WIDTH,
+                .height = SKELETON_HEIGHT,
+                .type = ENTITY_ENEMY_SKELETON,
+                .spawn_time = SDL_GetTicks()
+        });
+}
+
 void render(struct state *s)
 {
         render_view(s);
@@ -105,6 +132,8 @@ void start()
 
         if (s.close)
                 goto _close;
+
+        summon_shroom(vec(4, 4));
 
         SDL_Event evt;
 
