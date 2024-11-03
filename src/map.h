@@ -24,7 +24,6 @@ struct ray_cast {
         struct segment *segment;
 };
 
-#define vec(_x, _y) ((struct vector) {.x = _x, .y = _y})
 #define seg(_a, _b, _txt, _scale) ((struct segment) {.a = _a, .b = _b, .txt = _txt, .txt_scale = _scale})
 #define vert(_x, _y) vec(_x, _y)
 

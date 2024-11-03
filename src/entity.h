@@ -25,7 +25,7 @@ enum entity_type {
         ENTITY_NONE,
         ENTITY_PROJECTILE,
         ENTITY_ENEMY_WISP,
-        ENTITY_DRUG,
+        ENTITY_SHROOM,
         ENTITY_SPRITE,
         ENTITY_ENEMY_SKELETON
 };

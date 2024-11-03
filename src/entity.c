@@ -3,10 +3,8 @@
 #include "textures.h"
 #include "render.h"
 #include "map.h"
-#include "health.h"
 #include "drugs.h"
-
-#include <stdbool.h>
+#include "enemy.h"
 
 struct entity game_entities[MAX_ENTITIES] = {ENTITY_NONE};
 
@@ -42,7 +40,9 @@ static void sort_entities()
 
 void entity_render_all(struct state *s)
 {
+        // This works in place of a "Z-Buffer" for the sprites
         sort_entities();
+
         struct entity *e;
         for (int i = MAX_ENTITIES - 1; i >= 0; i--) {
                 e = &game_entities[i];
@@ -104,42 +104,11 @@ static void entity_update_enemy(struct state *s, struct entity *e)
 
         double p_distance = vector_distance(&e->location, &cam.location);
 
-        // Wisps deal instant damage
-        if (e->type == ENTITY_ENEMY_WISP && p_distance <= THRESHOLD_DISTANCE) {
-                e->type = ENTITY_NONE;
-                s->flash_anim.armed = true;
-                damage_health(1);
-                return;
-        }
+        if (e->type == ENTITY_ENEMY_WISP)
+                update_wisp(s, e, p_distance);
 
-        // Skeletons have multiple states that do not overlap
-        if (e->type == ENTITY_ENEMY_SKELETON && e->state != STATE_CHARGING) {
-                if (p_distance <= SKELETON_REACH) {
-                        e->state = STATE_CHARGING;
-                        e->anim = get_animation(ANIMATION_CHARGING);
-                        return;
-                }
-
-                // If the player is out of reach, the skeleton shall walk towards them
-                if (e->state != STATE_WALKING) {
-                        e->state = STATE_WALKING;
-                        e->anim = get_animation(ANIMATION_WALKING);
-                        return;
-                }
-        }
-
-        // Deal damage at the end of the charging animation
-        if (e->state == STATE_CHARGING && !e->anim.armed) {
-                e->anim = get_animation(ANIMATION_IDLE);
-                e->state = STATE_DEFAULT;
-
-                if (p_distance <= SKELETON_REACH) {
-                        s->flash_anim.armed = true;
-                        damage_health(1);
-                }
-
-                return;
-        }
+        if (e->type == ENTITY_ENEMY_SKELETON)
+                update_skeleton(s, e, p_distance);
 
         if (e->type != ENTITY_ENEMY_WISP && e->state != STATE_WALKING) {
                 e->accel = vec(0, 0);
@@ -177,7 +146,7 @@ void entity_render_update(struct entity *e, struct state *s)
         if (IS_ENEMY(e->type))
                 entity_update_enemy(s, e);
 
-        if (e->type == ENTITY_DRUG)
+        if (e->type == ENTITY_SHROOM)
                 entity_update_drug(e);
 
         vector_add(&e->velocity, &e->accel);

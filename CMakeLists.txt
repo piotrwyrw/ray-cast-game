@@ -20,6 +20,8 @@ add_executable(game
         src/entity.c
         src/health.c
         src/drugs.c
+        src/enemy.c
+        src/spawn.c
 )
 
 target_link_libraries(game SDL2::SDL2 SDL2_image::SDL2_image)

@@ -1,6 +1,8 @@
 #ifndef MATH_H
 #define MATH_H
 
+#define vec(_x, _y) ((struct vector) {.x = _x, .y = _y})
+
 struct vector {
         double x;
         double y;

@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "render.h"
 #include "entity.h"
+#include "spawn.h"
 
 #include <stdbool.h>
 
@@ -76,44 +77,6 @@ void add_bullet()
         });
 }
 
-void summon_wisp(struct vector location)
-{
-        entity_add((struct entity) {
-                .location = location,
-                .anim = get_animation(ANIMATION_WISP),
-                .velocity = vec(0.0, 0.0),
-                .width = WISP_SIZE,
-                .height = WISP_SIZE,
-                .type = ENTITY_ENEMY_WISP,
-                .spawn_time = SDL_GetTicks()
-        });
-}
-
-void summon_shroom(struct vector location)
-{
-        entity_add((struct entity) {
-                .location = location,
-                .anim = get_animation(ANIMATION_SHROOM),
-                .y_off = 200,
-                .velocity = vec(0.0, 0.0),
-                .width = WISP_SIZE * 3,
-                .height = WISP_SIZE * 3,
-                .type = ENTITY_DRUG,
-                .spawn_time = SDL_GetTicks()
-        });
-
-        entity_add((struct entity) {
-                .location = vec(0.0, 0.0),
-                .anim = get_animation(ANIMATION_IDLE),
-                .y_off = 100,
-                .velocity = vec(0.0, 0.0),
-                .width = SKELETON_WIDTH,
-                .height = SKELETON_HEIGHT,
-                .type = ENTITY_ENEMY_SKELETON,
-                .spawn_time = SDL_GetTicks()
-        });
-}
-
 void render(struct state *s)
 {
         render_view(s);
@@ -133,7 +96,7 @@ void start()
         if (s.close)
                 goto _close;
 
-        summon_shroom(vec(4, 4));
+        spawn_generic(ENTITY_SHROOM, vec(4, 4));
 
         SDL_Event evt;
 
@@ -167,7 +130,7 @@ void start()
                                         machine_gun = true;
 
                                 if (evt.button.button == SDL_BUTTON_MIDDLE)
-                                        summon_wisp(cam.location);
+                                        spawn_generic(ENTITY_ENEMY_WISP, cam.location);
                         }
 
                         if (evt.type == SDL_MOUSEBUTTONUP)
