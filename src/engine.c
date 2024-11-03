@@ -103,7 +103,7 @@ void summon_shroom(struct vector location)
         });
 
         entity_add((struct entity) {
-                .location = location,
+                .location = vec(0.0, 0.0),
                 .anim = get_animation(ANIMATION_IDLE),
                 .y_off = 100,
                 .velocity = vec(0.0, 0.0),

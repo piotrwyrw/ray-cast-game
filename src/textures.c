@@ -28,8 +28,9 @@ _Bool load_textures(struct state *s)
         LOAD_TEXTURE(EXPLOSION_INDEX, ASSET_PATH_EXPLOSION)
         LOAD_TEXTURE(SHROOM_INDEX, ASSET_PATH_SHROOM)
         LOAD_TEXTURE(PROJECTILE_INDEX, ASSET_PATH_PROJECTILE)
-        LOAD_TEXTURE(IDLE_INDEX, ASSET_PATH_IDLE)
-        LOAD_TEXTURE(CHARGING_INDEX, ASSET_PATH_CHARGING)
+        LOAD_TEXTURE(IDLE_INDEX, ASSET_PATH_SKEL_IDLE)
+        LOAD_TEXTURE(CHARGING_INDEX, ASSET_PATH_SKEL_CHARGING)
+        LOAD_TEXTURE(WALKING_INDEX, ASSET_PATH_SKEL_WALKING)
 
         return true;
 }
@@ -41,7 +42,7 @@ struct animation game_animations[] = {
                 .index = PROJECTILE_INDEX,
                 .current_frame = 0,
                 .frame_count = 4,
-                .frame_duration = 70,
+                .frame_duration = 30,
                 .type = ANIMATION_MODE_CONTINUOUS,
                 .frames = {
                         (struct SDL_Rect) {
@@ -177,6 +178,29 @@ struct animation game_animations[] = {
                         rect(43 * 15, 0, 24, 37),
                         rect(43 * 16, 0, 24, 37),
                         rect(43 * 17, 0, 24, 37)
+                }
+        },
+        {
+                .index = WALKING_INDEX,
+                .current_frame = 0,
+                .frame_count = 13,
+                .frame_duration = 25,
+                .type = ANIMATION_MODE_CONTINUOUS,
+                .armed = true,
+                .frames = {
+                        rect(0, 0, 22, 33),
+                        rect(22, 0, 22, 33),
+                        rect(22 * 2, 0, 22, 33),
+                        rect(22 * 3, 0, 22, 33),
+                        rect(22 * 4, 0, 22, 33),
+                        rect(22 * 5, 0, 22, 33),
+                        rect(22 * 6, 0, 22, 33),
+                        rect(22 * 7, 0, 22, 33),
+                        rect(22 * 8, 0, 22, 33),
+                        rect(22 * 9, 0, 22, 33),
+                        rect(22 * 10, 0, 22, 33),
+                        rect(22 * 11, 0, 22, 33),
+                        rect(22 * 12, 0, 22, 33),
                 }
         }
 };

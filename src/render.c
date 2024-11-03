@@ -16,6 +16,12 @@
 
 double FOV = ORIGINAL_FOV;
 
+double light_intensity(double distance)
+{
+        double light_distance = (distance > LIGHT_DISTANCE) ? LIGHT_DISTANCE : distance;
+        return 255 - (LIGHT_FALLOFF / LIGHT_DISTANCE) * light_distance;
+}
+
 // Render the wall with the given segment texture via blitting
 void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distance, _Bool contour)
 {
@@ -42,12 +48,10 @@ void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distan
                 .h = (int) (t_height / rc->segment->txt_scale)
         };
 
-        double light_distance = (distance > LIGHT_DISTANCE) ? LIGHT_DISTANCE : distance;
-        double light_intensity = 255 - (LIGHT_FALLOFF / LIGHT_DISTANCE) * light_distance;
+        double intensity = light_intensity(distance);
 
-        SDL_SetTextureColorMod(txt, (Uint8) light_intensity, (Uint8) light_intensity, (Uint8) light_intensity);
+        SDL_SetTextureColorMod(txt, (Uint8) intensity, (Uint8) intensity, (Uint8) intensity);
         SDL_RenderCopy(s->renderer, txt, &src, &dst);
-//        SDL_SetTextureColorMod(txt, 255, 255, 255);
 
         SDL_SetRenderDrawColor(s->renderer, 0, 0, 0, 255);
         SDL_RenderDrawPoint(s->renderer, x, HEIGHT / 2 - height);
@@ -129,7 +133,6 @@ void render_view(struct state *s)
         render_raycast(s);
         entity_render_all(s);
         render_crosshair(s);
-        render_health_bar(s);
 
         SDL_SetRenderDrawBlendMode(s->renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(s->renderer, 100, 0, 255, (255 / 2) * drugs_current_intensity(M_PI / 2));
@@ -137,4 +140,7 @@ void render_view(struct state *s)
         SDL_RenderFillRect(s->renderer, &rect);
 
         animation_render(&s->flash_anim, s, (SDL_Rect) {.x = 0, .y = 0, .w = WIDTH, .h = HEIGHT});
+
+        render_health_bar(s);
+
 }

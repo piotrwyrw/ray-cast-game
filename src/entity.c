@@ -10,10 +10,41 @@
 
 struct entity game_entities[MAX_ENTITIES] = {ENTITY_NONE};
 
+static double entity_distance(struct entity *e)
+{
+        return vector_distance(&e->location, &cam.location);
+}
+
+static int compare_entities(const void *a, const void *b)
+{
+        struct entity *e_a = (struct entity *) a;
+        struct entity *e_b = (struct entity *) b;
+
+        double dst_a = entity_distance(e_a);
+        double dst_b = entity_distance(e_b);
+
+        if (e_a->type != ENTITY_NONE && e_b->type != ENTITY_NONE)
+                return (dst_a < dst_b) ? -1 : (dst_a == dst_b) ? 0 : 1;
+
+        if (e_a->type != ENTITY_NONE)
+                return -1;
+
+        if (e_b->type != ENTITY_NONE)
+                return 1;
+
+        return 0;
+}
+
+static void sort_entities()
+{
+        qsort(game_entities, MAX_ENTITIES, sizeof(struct entity), compare_entities);
+}
+
 void entity_render_all(struct state *s)
 {
+        sort_entities();
         struct entity *e;
-        for (unsigned int i = 0; i < MAX_ENTITIES; i++) {
+        for (int i = MAX_ENTITIES - 1; i >= 0; i--) {
                 e = &game_entities[i];
                 if (e->type == ENTITY_NONE)
                         continue;
@@ -34,7 +65,7 @@ static void entity_update_projectile(struct entity *e)
         for (unsigned int i = 0; i < MAX_ENTITIES; i++) {
                 tmp_e = &game_entities[i];
 
-                if ((tmp_e->type != ENTITY_ENEMY_WISP && tmp_e->type != ENTITY_ENEMY_SKELETON) || tmp_e->flags & ENTITY_FLAG_DYING)
+                if (!IS_ENEMY(tmp_e->type) || tmp_e->state == STATE_DYING)
                         continue;
 
                 distance = vector_distance(&e->location, &tmp_e->location);
@@ -43,7 +74,7 @@ static void entity_update_projectile(struct entity *e)
                         continue;
 
                 e->type = ENTITY_NONE;
-                tmp_e->flags |= ENTITY_FLAG_DYING;
+                tmp_e->state = STATE_DYING;
                 tmp_e->anim = get_animation(ANIMATION_EXPLOSION);
                 return;
         }
@@ -63,34 +94,44 @@ static void entity_update_projectile(struct entity *e)
         e->accel = vec(0.0, 0.0);
         e->width = 300;
         e->height = e->width;
-        e->flags |= ENTITY_FLAG_DYING;
+        e->state = STATE_DYING;
 }
 
-static void entity_update_living(struct state *s, struct entity *e)
+static void entity_update_enemy(struct state *s, struct entity *e)
 {
+        if (e->state == STATE_DYING || SDL_GetTicks() - e->spawn_time < ENEMY_ACTIVATION_TIME)
+                return;
+
         double p_distance = vector_distance(&e->location, &cam.location);
 
-        if (SDL_GetTicks() - e->spawn_time > ENEMY_ACTIVATION_TIME) {
+        // Wisps deal instant damage
+        if (e->type == ENTITY_ENEMY_WISP && p_distance <= THRESHOLD_DISTANCE) {
+                e->type = ENTITY_NONE;
+                s->flash_anim.armed = true;
+                damage_health(1);
+                return;
+        }
 
-                if (e->type == ENTITY_ENEMY_WISP && p_distance <= THRESHOLD_DISTANCE) {
-                        e->type = ENTITY_NONE;
-                        s->flash_anim.armed = true;
-                        damage_health(1);
-                        return;
-                }
-
-                if (e->type == ENTITY_ENEMY_SKELETON && !(e->flags & ENTITY_FLAG_CHARGING) && p_distance <= SKELETON_REACH) {
-                        e->flags |= ENTITY_FLAG_CHARGING;
+        // Skeletons have multiple states that do not overlap
+        if (e->type == ENTITY_ENEMY_SKELETON && e->state != STATE_CHARGING) {
+                if (p_distance <= SKELETON_REACH) {
+                        e->state = STATE_CHARGING;
                         e->anim = get_animation(ANIMATION_CHARGING);
                         return;
                 }
 
+                // If the player is out of reach, the skeleton shall walk towards them
+                if (e->state != STATE_WALKING) {
+                        e->state = STATE_WALKING;
+                        e->anim = get_animation(ANIMATION_WALKING);
+                        return;
+                }
         }
 
-        if (e->flags & ENTITY_FLAG_CHARGING && !e->anim.armed) {
+        // Deal damage at the end of the charging animation
+        if (e->state == STATE_CHARGING && !e->anim.armed) {
                 e->anim = get_animation(ANIMATION_IDLE);
-
-                e->flags ^= ENTITY_FLAG_CHARGING;
+                e->state = STATE_DEFAULT;
 
                 if (p_distance <= SKELETON_REACH) {
                         s->flash_anim.armed = true;
@@ -100,8 +141,11 @@ static void entity_update_living(struct state *s, struct entity *e)
                 return;
         }
 
-        if (e->type != ENTITY_ENEMY_WISP)
+        if (e->type != ENTITY_ENEMY_WISP && e->state != STATE_WALKING) {
+                e->accel = vec(0, 0);
+                e->velocity = vec(0, 0);
                 return;
+        }
 
         struct vector direction = cam.location;
         vector_sub(&direction, &e->location);
@@ -122,7 +166,7 @@ static void entity_update_drug(struct entity *e)
 
 void entity_render_update(struct entity *e, struct state *s)
 {
-        if (e->flags & ENTITY_FLAG_DYING && !e->anim.armed) {
+        if (e->state == STATE_DYING && !e->anim.armed) {
                 e->type = ENTITY_NONE;
                 return;
         }
@@ -130,15 +174,15 @@ void entity_render_update(struct entity *e, struct state *s)
         if (e->type == ENTITY_PROJECTILE)
                 entity_update_projectile(e);
 
-        if (e->type == ENTITY_ENEMY_WISP || e->type == ENTITY_ENEMY_SKELETON)
-                entity_update_living(s, e);
+        if (IS_ENEMY(e->type))
+                entity_update_enemy(s, e);
 
         if (e->type == ENTITY_DRUG)
                 entity_update_drug(e);
 
         vector_add(&e->velocity, &e->accel);
 
-        if (e->type == ENTITY_ENEMY_WISP)
+        if (IS_ENEMY(e->type))
                 vector_limit(&e->velocity, WISP_VELOCITY);
 
         vector_add(&e->location, &e->velocity);
@@ -179,6 +223,8 @@ void entity_render(struct entity *e, struct state *s)
 
         int sprite_y = HEIGHT / 2 - (sprite_h / 2) + (int) (e->y_off / distance);
 
+        double light = light_intensity(distance);
+        SDL_SetTextureColorMod(game_textures[e->anim.index], (Uint8) light, (Uint8) light, (Uint8) light);
         animation_render(&e->anim, s, (SDL_Rect) {
                 .x = sprite_x - (sprite_w / 2),
                 .y = sprite_y,

@@ -17,8 +17,9 @@
 #define ASSET_PATH_FLASH "assets/flash.png"
 #define ASSET_PATH_EXPLOSION "assets/explosion.png"
 #define ASSET_PATH_SHROOM "assets/shroom.png"
-#define ASSET_PATH_IDLE "assets/idle.png"
-#define ASSET_PATH_CHARGING "assets/charging.png"
+#define ASSET_PATH_SKEL_IDLE "assets/idle.png"
+#define ASSET_PATH_SKEL_CHARGING "assets/charging.png"
+#define ASSET_PATH_SKEL_WALKING "assets/walking.png"
 
 #define CONCRETE_INDEX 0
 #define BRICKS_INDEX 1
@@ -34,6 +35,7 @@
 #define SHROOM_INDEX 11
 #define IDLE_INDEX 12
 #define CHARGING_INDEX 13
+#define WALKING_INDEX 14
 
 #define MAX_FRAMES 20
 
@@ -66,6 +68,7 @@ struct animation {
 #define ANIMATION_SHROOM 4
 #define ANIMATION_IDLE 5
 #define ANIMATION_CHARGING 6
+#define ANIMATION_WALKING 7
 
 extern struct animation game_animations[];
 

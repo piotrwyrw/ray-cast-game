@@ -19,6 +19,8 @@
 #define THRESHOLD_DISTANCE 0.2
 #define SKELETON_REACH 2.0
 
+#define IS_ENEMY(type) (type == ENTITY_ENEMY_WISP || type == ENTITY_ENEMY_SKELETON)
+
 enum entity_type {
         ENTITY_NONE,
         ENTITY_PROJECTILE,
@@ -28,13 +30,17 @@ enum entity_type {
         ENTITY_ENEMY_SKELETON
 };
 
-#define ENTITY_FLAG_DYING (1 << 0)
-#define ENTITY_FLAG_CHARGING (1 << 1)
+enum entity_state {
+        STATE_DEFAULT,
+        STATE_DYING,
+        STATE_CHARGING,
+        STATE_WALKING
+};
 
 struct entity {
         enum entity_type type;
 
-        Uint8 flags;
+        enum entity_state state;
 
         unsigned int width;
         unsigned int height;

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 double intensity = M_PI;
-Uint32 trip_duration = 5000;
+Uint32 trip_duration = 10000;
 Uint32 trip_start = 0;
 _Bool tripping = false;
 
@@ -37,7 +37,7 @@ void drugs_apply()
                 return;
         }
 
-        double angle = (M_PI / trip_duration) * (now - trip_start);
+        double angle = ((M_PI * 2) / trip_duration) * (now - trip_start);
 
         double curr_int = drugs_current_intensity(0.0);
 
