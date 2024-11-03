@@ -5,7 +5,7 @@
 #include "math.h"
 
 #define MAX_ENTITIES 100
-#define MAX_PROJECTILE_DISTANCE 10
+#define MAX_PROJECTILE_DISTANCE 20
 #define WISP_VELOCITY 0.03
 
 #define BULLET_SIZE 50
@@ -51,6 +51,8 @@ struct entity {
         struct vector velocity;
 
         Uint32 spawn_time;
+
+        _Bool distance_dim;
 
         struct animation anim;
         struct vector location;

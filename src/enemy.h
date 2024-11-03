@@ -5,6 +5,7 @@
 #include "entity.h"
 
 void update_skeleton(struct state *s, struct entity *e, double distance);
+
 void update_wisp(struct state *s, struct entity *e, double distance);
 
 #endif

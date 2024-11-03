@@ -5,6 +5,7 @@
 #include "map.h"
 #include "drugs.h"
 #include "enemy.h"
+#include <stdbool.h>
 
 struct entity game_entities[MAX_ENTITIES] = {ENTITY_NONE};
 
@@ -76,6 +77,7 @@ static void entity_update_projectile(struct entity *e)
                 e->type = ENTITY_NONE;
                 tmp_e->state = STATE_DYING;
                 tmp_e->anim = get_animation(ANIMATION_EXPLOSION);
+                tmp_e->distance_dim = false;
                 return;
         }
 
@@ -95,6 +97,7 @@ static void entity_update_projectile(struct entity *e)
         e->width = 300;
         e->height = e->width;
         e->state = STATE_DYING;
+        e->distance_dim = false;
 }
 
 static void entity_update_enemy(struct state *s, struct entity *e)
@@ -192,8 +195,15 @@ void entity_render(struct entity *e, struct state *s)
 
         int sprite_y = HEIGHT / 2 - (sprite_h / 2) + (int) (e->y_off / distance);
 
-        double light = light_intensity(distance);
+        double light;
+
+        if (e->distance_dim)
+                light = light_intensity(distance);
+        else
+                light = 255.0;
+
         SDL_SetTextureColorMod(game_textures[e->anim.index], (Uint8) light, (Uint8) light, (Uint8) light);
+
         animation_render(&e->anim, s, (SDL_Rect) {
                 .x = sprite_x - (sprite_w / 2),
                 .y = sprite_y,

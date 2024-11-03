@@ -45,22 +45,10 @@ struct animation game_animations[] = {
                 .frame_duration = 30,
                 .type = ANIMATION_MODE_CONTINUOUS,
                 .frames = {
-                        (struct SDL_Rect) {
-                                .x = 0, .y = 0,
-                                .w = 32, .h = 30
-                        },
-                        (struct SDL_Rect) {
-                                .x = 32, .y = 0,
-                                .w = 32, .h = 30
-                        },
-                        (struct SDL_Rect) {
-                                .x = 32 * 2, .y = 0,
-                                .w = 32, .h = 30
-                        },
-                        (struct SDL_Rect) {
-                                .x = 32 * 3, .y = 0,
-                                .w = 32, .h = 30
-                        }
+                        rect(0, 0, 32, 30),
+                        rect(32, 0, 32, 30),
+                        rect(32 * 2, 0, 32, 30),
+                        rect(32 * 3, 0, 32, 30)
                 }
         },
         {
@@ -106,7 +94,7 @@ struct animation game_animations[] = {
                 .index = EXPLOSION_INDEX,
                 .current_frame = 0,
                 .frame_count = 11,
-                .frame_duration = 20,
+                .frame_duration = 15,
                 .type = ANIMATION_MODE_ONE_SHOT,
                 .armed = true,
                 .frames = {
@@ -212,6 +200,9 @@ void animation_render(struct animation *anim, struct state *s, SDL_Rect dst)
         if (anim->frame_count == 0)
                 return;
 
+        if (anim->frame_count == 1)
+                goto _render;
+
         if (anim->type == ANIMATION_MODE_ONE_SHOT && !anim->armed)
                 return;
 
@@ -227,6 +218,7 @@ void animation_render(struct animation *anim, struct state *s, SDL_Rect dst)
                 }
         }
 
+        _render:;
         SDL_Rect *src = &anim->frames[anim->current_frame];
         SDL_RenderCopy(s->renderer, game_textures[anim->index], src, &dst);
 }

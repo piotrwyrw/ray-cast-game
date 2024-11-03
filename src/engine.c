@@ -57,26 +57,6 @@ void move_camera(enum walk_direction direction)
         vector_add(&cam.location, &extension);
 }
 
-struct vector bullet_velocity()
-{
-        struct vector vel = vector_dir_angle(cam.angle);
-        vector_mul(&vel, BULLET_SPEED);
-        return vel;
-}
-
-void add_bullet()
-{
-        entity_add((struct entity) {
-                .location = cam.location,
-                .anim = get_animation(ANIMATION_PROJECTILE),
-                .velocity = bullet_velocity(),
-                .width = BULLET_SIZE,
-                .height = BULLET_SIZE,
-                .type = ENTITY_PROJECTILE,
-                .spawn_time = SDL_GetTicks()
-        });
-}
-
 void render(struct state *s)
 {
         render_view(s);
@@ -124,7 +104,7 @@ void start()
 
                         if (evt.type == SDL_MOUSEBUTTONDOWN) {
                                 if (evt.button.button == SDL_BUTTON_LEFT)
-                                        add_bullet();
+                                        spawn_generic(ENTITY_PROJECTILE, cam.location);
 
                                 if (evt.button.button == SDL_BUTTON_RIGHT)
                                         machine_gun = true;
@@ -141,6 +121,10 @@ void start()
                                 WIDTH = evt.window.data1;
                                 HEIGHT = evt.window.data2;
                         }
+
+                        if (evt.type == SDL_KEYDOWN && evt.key.keysym.scancode == SDL_SCANCODE_G) {
+                                spawn_generic(ENTITY_ENEMY_SKELETON, cam.location);
+                        }
                 }
 
                 keyState = SDL_GetKeyboardState(NULL);
@@ -149,7 +133,7 @@ void start()
                         Uint32 current_time = SDL_GetTicks();
                         if (current_time - last_projectile > MACHINE_GUN_DELAY) {
                                 last_projectile = current_time;
-                                add_bullet();
+                                spawn_generic(ENTITY_PROJECTILE, cam.location);
                         }
                 }
 

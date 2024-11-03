@@ -58,5 +58,5 @@ void heal()
                 return;
 
         last_healing = current_ticks;
-        health_points ++;
+        health_points++;
 }

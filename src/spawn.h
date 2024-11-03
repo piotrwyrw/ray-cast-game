@@ -14,6 +14,8 @@ spawnf(shroom)
 
 spawnf(skeleton)
 
+spawnf(projectile)
+
 #undef spawnf
 
 #endif
