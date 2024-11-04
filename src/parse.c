@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 struct {
+        int txt_index;
         double txt_scale;
         double merge_tol;
 } ctl_state;
@@ -13,6 +14,7 @@ static void ctl_state_reset()
 {
         ctl_state.txt_scale = 1.0;
         ctl_state.merge_tol = 0.1;
+        ctl_state.txt_index = PLASTER_INDEX;
 }
 
 static void ctl_seq_reset(struct ctl_seq *seq)
@@ -138,7 +140,7 @@ static void map_wall(struct vector *a, struct vector *b, struct map *map)
                 .a = a,
                 .b = b,
                 .txt_scale = ctl_state.txt_scale,
-                .txt = BRICKS_INDEX
+                .txt = ctl_state.txt_index
         };
 }
 
@@ -157,6 +159,8 @@ static void map_wall(struct vector *a, struct vector *b, struct map *map)
                 return false;                                           \
         }
 
+#define S(id, i) char *id = seq->params[i];
+
 #define ASSERT(expr, ...) if (!(expr)) { printf(__VA_ARGS__); return false; }
 
 #define CTL_SEQ seq
@@ -167,8 +171,8 @@ static _Bool ctl_seq_execute(struct ctl_seq *CTL_SEQ, struct map *map)
                 CT(4)
                 D(x1, 0)
                 D(y1, 1)
-                D(x2, 1)
-                D(y2, 1)
+                D(x2, 2)
+                D(y2, 3)
 
                 struct vector *vert_a = map_vertex(x1, y1, map);
                 struct vector *vert_b = map_vertex(x2, y2, map);
@@ -180,7 +184,7 @@ static _Bool ctl_seq_execute(struct ctl_seq *CTL_SEQ, struct map *map)
                 CT(1)
                 D(tolerance, 0)
 
-                ASSERT(tolerance >= 0.0, "THe merge tolerance scale is expected to be greater or equal to 0, got %f.\n",
+                ASSERT(tolerance >= 0.0, "The merge tolerance scale is expected to be greater or equal to 0, got %f.\n",
                        tolerance)
 
                 ctl_state.merge_tol = tolerance;
@@ -190,9 +194,20 @@ static _Bool ctl_seq_execute(struct ctl_seq *CTL_SEQ, struct map *map)
                 CT(1)
                 D(scale, 0)
 
-                ASSERT(scale > 0.0, "THe texture scale is expected to be greater than 0, got %f.\n", scale)
+                ASSERT(scale > 0.0, "The texture scale is expected to be greater than 0, got %f.\n", scale)
 
                 ctl_state.txt_scale = scale;
+        })
+
+        HANDLE("TXT", {
+                CT(1)
+                S(texture, 0)
+
+                int txt_ix = find_texture(texture);
+
+                ASSERT(txt_ix != -1, "Undefined texture '%s'.\n", texture)
+
+                ctl_state.txt_index = txt_ix;
         })
 
         printf("Unknown control word \"%s\"\n", CTL_SEQ->id);
@@ -202,6 +217,7 @@ static _Bool ctl_seq_execute(struct ctl_seq *CTL_SEQ, struct map *map)
 #undef HANDLE
 #undef CT
 #undef D
+#undef S
 #undef CTL_SEQ
 #undef ASSERT
 

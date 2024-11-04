@@ -1,19 +1,24 @@
 #include "engine.h"
 #include "parse.h"
 #include "map.h"
+#include "util.h"
 
 int main(void)
 {
-        const char *input = "MERGE   0.001\n"
-                            "SCALE   0.5\n"
-                            "WALL    -5  5   5   5\n"
-                            "WALL    -5  5   -5  -2";
+        const char *input = file_read("map.wrld");
 
-        if (!map_parse(input, &game_map)) {
-                printf("Could not parse map.\n");
+        if (!input) {
+                printf("Could not load map file.\n");
                 return 0;
         }
 
+        if (!map_parse(input, &game_map)) {
+                printf("Could not parse map.\n");
+                free((void *) input);
+                return 0;
+        }
+
+        free((void *) input);
         start();
         return 0;
 }

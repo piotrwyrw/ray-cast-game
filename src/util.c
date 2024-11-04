@@ -2,6 +2,8 @@
 #include <string.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define IS_DIGIT(c) (c >= '0' && c <= '9')
 
@@ -66,4 +68,30 @@ _Bool str_conv_d(const char *str, double *dst)
 
         *dst = negative ? (d * -1.0) : d;
         return true;
+}
+
+char *file_read(const char *path)
+{
+        FILE *f = fopen(path, "r");
+
+        if (!f)
+                return NULL;
+
+        unsigned long size;
+
+        fseek(f, 0, SEEK_END);
+        size = ftell(f);
+        rewind(f);
+
+        char *arr = calloc(size, sizeof(char));
+
+        if (!arr) {
+                fclose(f);
+                return NULL;
+        }
+
+        fread(arr, sizeof(char), size, f);
+        fclose(f);
+
+        return arr;
 }

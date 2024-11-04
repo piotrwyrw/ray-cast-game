@@ -35,6 +35,20 @@ _Bool load_textures(struct state *s)
         return true;
 }
 
+#define ON(str, index) if (strcmp(id, str) == 0) { return index; }
+
+int find_texture(const char *id)
+{
+        ON("BRICKS", BRICKS_INDEX)
+        ON("PLASTER", PLASTER_INDEX)
+        ON("ROCK", ROCK_INDEX)
+        ON("TILES", TILES_INDEX)
+
+        return -1;
+}
+
+#undef ON
+
 #define rect(_x, _y, _w, _h) (struct SDL_Rect) { .x = _x, .y = _y, .w = _w, .h = _h }
 
 struct animation game_animations[] = {

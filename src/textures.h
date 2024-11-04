@@ -45,6 +45,8 @@ extern SDL_Texture *game_textures[];
 
 _Bool load_textures(struct state *s);
 
+int find_texture(const char *id);
+
 enum animation_type {
         ANIMATION_MODE_CONTINUOUS,
         ANIMATION_MODE_ONE_SHOT

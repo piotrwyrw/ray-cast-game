@@ -1,4 +1,18 @@
 MERGE   0.001
-SCALE   0.5
-WALL    -5  5   5   5
-WALL    -5  5   -5  -2
+
+SCALE   0.1
+TXT     BRICKS
+
+WALL    -.5 -6  -.5 5
+WALL    .5  -5  .5  -.5
+WALL    .5  .5   .5  5
+WALL    .5  .5  5   .5
+WALL    .5  -.5 5   -.5
+
+WALL    .5  5   5   5
+WALL    5   5   5   .5
+WALL    -.5 6   6   6
+WALL    6   6   6   -6
+WALL    6   -6  -.5 -6
+WALL    5   -.5 5   -5
+WALL    .5  -5  5   -5
