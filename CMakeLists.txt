@@ -22,6 +22,8 @@ add_executable(game
         src/drugs.c
         src/enemy.c
         src/spawn.c
+        src/parse.c
+        src/util.c
 )
 
 target_link_libraries(game SDL2::SDL2 SDL2_image::SDL2_image)

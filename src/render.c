@@ -10,7 +10,6 @@
 #include <SDL.h>
 
 #include <stdbool.h>
-#include <math.h>
 
 #define dim(f, r, g, b) f * r, f * g, f * b
 
@@ -80,7 +79,7 @@ void render_gradient(struct state *s, int y, int h, Uint8 r, Uint8 g, Uint8 b, _
 #undef dim
 
 // Calculate the ray angle via a projection plane. This is to tackle the distortion at the edges of the view.
-inline double outbound_angle(double x)
+double outbound_angle(double x)
 {
         double plane_w = tan(FOV / 2) * PLANE_DISTANCE;
         plane_w *= 2.0;

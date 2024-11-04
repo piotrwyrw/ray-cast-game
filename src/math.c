@@ -2,6 +2,7 @@
 #include "map.h"
 
 #include <math.h>
+#include "math.h"
 
 struct vector vector_copy(struct vector *ptr)
 {

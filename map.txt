@@ -1,0 +1,5 @@
+MERGE 0.001
+SCALE 0.5
+
+WALL -5 5 5 5
+WALL -5 5 -5 -2

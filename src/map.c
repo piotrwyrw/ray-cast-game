@@ -1,25 +1,10 @@
 #include "map.h"
 #include "math.h"
 #include "textures.h"
-
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define sgt(idx1, idx2, txt, scale) seg(&vertices[idx1], &vertices[idx2], txt, scale)
-
-struct vector vertices[] = {
-        vert(-5, -5),
-        vert(5, -5),
-        vert(5, 5),
-        vert(-5, 5)
-};
-
-struct segment segments[] = {
-        sgt(0, 1, BRICKS_INDEX, 0.15),
-        sgt(1, 2, BRICKS_INDEX, 0.15),
-        sgt(2, 3, BRICKS_INDEX, 0.15),
-        sgt(3, 0, BRICKS_INDEX, 0.15),
-};
+struct map game_map;
 
 _Bool ray_segment(struct ray_cast *cast, double originX, double originY, double dirX, double dirY, struct segment *seg)
 {
@@ -46,15 +31,16 @@ _Bool cast_ray(struct ray_cast *cast, struct vector *origin, struct vector *dire
         _Bool intersection = false;
 
         struct ray_cast closest;
-        size_t segment_count = sizeof(segments) / sizeof(struct segment);
+
+        size_t segment_count = game_map.seg_count;
 
         for (size_t i = 0; i < segment_count; i++) {
-                struct ray_cast cast;
-                if (!ray_segment(&cast, origin->x, origin->y, direction->x, direction->y, &segments[i]))
+                struct ray_cast tmp_cast;
+                if (!ray_segment(&tmp_cast, origin->x, origin->y, direction->x, direction->y, &game_map.segments[i]))
                         continue;
-                if (intersection && cast.real_distance >= closest.real_distance)
+                if (intersection && tmp_cast.real_distance >= closest.real_distance)
                         continue;
-                closest = cast;
+                closest = tmp_cast;
                 intersection = true;
         }
 
@@ -63,4 +49,3 @@ _Bool cast_ray(struct ray_cast *cast, struct vector *origin, struct vector *dire
 
         return intersection;
 }
-
