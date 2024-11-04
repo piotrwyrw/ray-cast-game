@@ -215,8 +215,10 @@ static _Bool map_build(struct ctl_seq arr[], unsigned long seq_ct, struct map *m
         struct ctl_seq *seq;
 
         for (unsigned long i = 0; i < seq_ct; i++)
-                if (!ctl_seq_execute(&arr[i], map))
+                if (!ctl_seq_execute(&arr[i], map)) {
+                        printf("Failed on control sequence \"%s\".\n", arr[i].id);
                         return false;
+                }
 
         return true;
 }
