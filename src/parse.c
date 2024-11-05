@@ -21,7 +21,7 @@ static void ctl_seq_reset(struct ctl_seq *seq)
 {
         seq->param_count = 0;
         memset(seq->id, 0, CTL_TOKEN_LENGTH);
-        memset(seq->params, 0, CTL_TOKEN_LENGTH * CTL_SEQ_PARAM_COUNT);
+        memset(seq->params, 0, CTL_TOKEN_LENGTH * CTL_SEQ_MAX_PARAM_COUNT);
 }
 
 #define IS_SPACE(c) (c == ' ' || c == '\t')
@@ -240,4 +240,23 @@ _Bool map_parse(const char *str, struct map *ptr)
         ptr->vert_count = 0;
 
         return ctl_seq_parse_exec_all(str, ptr);
+}
+
+_Bool map_load(const char *path, struct map *ptr)
+{
+        const char *input = file_read(path);
+
+        if (!input) {
+                printf("Could not load map file \"%s\".\n", path);
+                return 0;
+        }
+
+        _Bool status = map_parse(input, ptr);
+
+        if (!status)
+                printf("Could not parse map \"%s\"\n", path);
+
+        free((void *) input);
+
+        return status;
 }
