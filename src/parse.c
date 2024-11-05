@@ -100,25 +100,6 @@ unsigned long ctl_seq_parse(const char *str, unsigned long length, unsigned long
 #undef IS_SPACE
 #undef IS_ENDL
 
-static _Bool ctl_seq_parse_all(const char *str, struct ctl_seq *arr, unsigned long *count)
-{
-        unsigned long len = strlen(str);
-        unsigned long off = 0;
-        unsigned long seq_count = 0;
-
-        _Bool success = false;
-
-        parse_seq:
-        off = ctl_seq_parse(str, len, off, &arr[seq_count++], &success);
-        if (off < len && success)
-                goto parse_seq;
-        if (!success)
-                return false;
-
-        *count = seq_count;
-        return true;
-}
-
 // Either return a pointer to a new vertex [x, y] or find an existing one at the given location (or inside a given merge_tol)
 static struct vector *map_vertex(double x, double y, struct map *map)
 {
@@ -214,6 +195,38 @@ static _Bool ctl_seq_execute(struct ctl_seq *CTL_SEQ, struct map *map)
         return false;
 }
 
+static _Bool ctl_seq_parse_exec_all(const char *str, struct map *map)
+{
+        ctl_state_reset();
+
+        unsigned long len = strlen(str);
+        unsigned long off = 0;
+        unsigned long seq_count = 0;
+
+        _Bool success = false;
+
+        struct ctl_seq seq;
+
+        parse_seq:
+        off = ctl_seq_parse(str, len, off, &seq, &success);
+
+        if (off < len && success) {
+                if (!ctl_seq_execute(&seq, map)) {
+                        printf("Could not build map: Failed on control sequence \"%s\".\n", seq.id);
+                        return false;
+                }
+
+                goto parse_seq;
+        }
+
+        if (!success) {
+                printf("Could not parse control sequence.\n");
+                return false;
+        }
+
+        return true;
+}
+
 #undef HANDLE
 #undef CT
 #undef D
@@ -221,29 +234,10 @@ static _Bool ctl_seq_execute(struct ctl_seq *CTL_SEQ, struct map *map)
 #undef CTL_SEQ
 #undef ASSERT
 
-static _Bool map_build(struct ctl_seq arr[], unsigned long seq_ct, struct map *map)
-{
-        ctl_state_reset();
-
-        map->vert_count = 0;
-        map->seg_count = 0;
-
-        struct ctl_seq *seq;
-
-        for (unsigned long i = 0; i < seq_ct; i++)
-                if (!ctl_seq_execute(&arr[i], map)) {
-                        printf("Failed on control sequence \"%s\".\n", arr[i].id);
-                        return false;
-                }
-
-        return true;
-}
-
 _Bool map_parse(const char *str, struct map *ptr)
 {
-        struct ctl_seq sequences[CTL_SEQ_COUNT];
-        unsigned long count;
-        if (!ctl_seq_parse_all(str, sequences, &count))
-                return false;
-        return map_build(sequences, count, ptr);
+        ptr->seg_count = 0;
+        ptr->vert_count = 0;
+
+        return ctl_seq_parse_exec_all(str, ptr);
 }
