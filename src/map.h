@@ -16,6 +16,7 @@ struct ray_cast {
         double seg_distance;
         double real_distance;
         struct segment *segment;
+        struct vector point;
 };
 
 #define MAP_MAX_VERTICES 100

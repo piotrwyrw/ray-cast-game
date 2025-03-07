@@ -5,7 +5,7 @@
 
 #include "math.h"
 
-#define MOUSE_SENSITIVITY 0.001
+#define MOUSE_SENSITIVITY 0.002
 #define MAX_ANGLE_DELTA 1.0
 #define BULLET_SPEED 0.1
 

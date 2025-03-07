@@ -42,6 +42,7 @@
 struct state;
 
 extern SDL_Texture *game_textures[];
+extern SDL_Surface *game_textures_surf[];
 
 _Bool load_textures(struct state *s);
 

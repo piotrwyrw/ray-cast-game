@@ -10,9 +10,11 @@
         if (!game_textures[index]) {                               \
                 printf("Could not load texture '" path "'");\
                 return false;               \
-        }
+        } \
+        game_textures_surf[index] = IMG_Load(path);
 
 SDL_Texture *game_textures[TEXTURE_COUNT] = {NULL};
+SDL_Surface *game_textures_surf[TEXTURE_COUNT] = {NULL};
 
 _Bool load_textures(struct state *s)
 {
@@ -108,7 +110,7 @@ struct animation game_animations[] = {
                 .index = EXPLOSION_INDEX,
                 .current_frame = 0,
                 .frame_count = 11,
-                .frame_duration = 15,
+                .frame_duration = 10,
                 .type = ANIMATION_MODE_ONE_SHOT,
                 .armed = true,
                 .frames = {
@@ -232,7 +234,7 @@ void animation_render(struct animation *anim, struct state *s, SDL_Rect dst)
                 }
         }
 
-        _render:;
+_render:;
         SDL_Rect *src = &anim->frames[anim->current_frame];
         SDL_RenderCopy(s->renderer, game_textures[anim->index], src, &dst);
 }

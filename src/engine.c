@@ -5,6 +5,7 @@
 #include "render.h"
 #include "entity.h"
 #include "spawn.h"
+#include "map.h"
 
 #include <stdbool.h>
 
@@ -40,6 +41,21 @@ void update_direction()
 
 #define SIDEWAYS(dir) (dir == WALK_LEFT || dir == WALK_RIGHT)
 
+void collisions_detect(struct vector *ext)
+{
+        struct vector dir = *ext;
+        vector_normalize(&dir);
+
+        struct ray_cast cast;
+        if (!cast_ray(&cast, &cam.location, &dir))
+                return;
+
+        if (cast.real_distance > WALK_SPEED)
+                return;
+
+        // TODO
+}
+
 void move_camera(enum walk_direction direction)
 {
         update_direction();
@@ -49,11 +65,12 @@ void move_camera(enum walk_direction direction)
         if (SIDEWAYS(direction)) {
                 struct vector rotated = vec(-extension.y, extension.x);
                 vector_mul(&rotated, (direction == WALK_RIGHT) ? WALK_SPEED : -WALK_SPEED);
-                vector_add(&cam.location, &rotated);
-                return;
-        }
+                extension.x = rotated.x;
+                extension.y = rotated.y;
+        } else vector_mul(&extension, (direction == WALK_FORWARD) ? WALK_SPEED : -WALK_SPEED);
 
-        vector_mul(&extension, (direction == WALK_FORWARD) ? WALK_SPEED : -WALK_SPEED);
+        collisions_detect(&extension);
+
         vector_add(&cam.location, &extension);
 }
 

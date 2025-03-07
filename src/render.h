@@ -14,12 +14,14 @@ extern double FOV;
 #define WALL_HEIGHT (HEIGHT / 2)
 
 #define LIGHT_DISTANCE (10.0)
-#define LIGHT_FALLOFF (100.0)
+#define LIGHT_FALLOFF (200.0)
 
 #define CROSSHAIR_SIZE 10
 
 #define SKY_COLOR 255, 255, 255
 #define FLOOR_COLOR 90, 90, 90
+
+#define FLOOR_HEIGHT 20
 
 double light_intensity(double distance);
 

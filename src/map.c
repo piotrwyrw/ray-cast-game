@@ -44,8 +44,12 @@ _Bool cast_ray(struct ray_cast *cast, struct vector *origin, struct vector *dire
                 intersection = true;
         }
 
-        if (intersection)
+        if (intersection) {
+                closest.point = *direction;
+                vector_mul(&closest.point, closest.real_distance);
+                vector_add(&closest.point, origin);
                 *cast = closest;
+        }
 
         return intersection;
 }

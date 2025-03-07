@@ -1,7 +1,6 @@
 #include "engine.h"
 #include "parse.h"
 #include "map.h"
-#include "util.h"
 
 int main(void)
 {
