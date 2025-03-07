@@ -135,8 +135,16 @@ struct vector inverse_perspective(double screenX, double screenY, double worldY)
 {
         return (struct vector){
                 .x = -((worldY * (2.0 * screenX - WIDTH)) / (HEIGHT - 2.0 * screenY)),
-                .y = -((worldY * HEIGHT) / (tan(ORIGINAL_FOV / 2.0) * (HEIGHT - 2.0 * screenY)))
+                .y = -((worldY * HEIGHT) / (tan(FOV / 2.0) * (HEIGHT - 2.0 * screenY)))
         };
+}
+
+void rotate_y(struct vector *vec, double angle)
+{
+        double new_x = vec->x * cos(angle) - sin(angle) * vec->y;
+        double new_y = vec->y * cos(angle) + sin(angle) * vec->x;
+        vec->x = new_x;
+        vec->y = new_y;
 }
 
 struct tex_uv texture_uv(double screenY, double scale, double xOffset, double yOffset)
@@ -144,10 +152,12 @@ struct tex_uv texture_uv(double screenY, double scale, double xOffset, double yO
         struct vector offset = {xOffset, yOffset};
 
         struct vector left = inverse_perspective(0, screenY, FLOOR_HEIGHT);
+        rotate_y(&left, -cam.angle);
         vector_mul(&left, scale);
         vector_add(&left, &offset);
 
         struct vector right = inverse_perspective(WIDTH, screenY, FLOOR_HEIGHT);
+        rotate_y(&right, -cam.angle);
         vector_mul(&right, scale);
         vector_add(&right, &offset);
 

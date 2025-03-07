@@ -114,20 +114,14 @@ void render_raycast(struct state *s)
         }
 }
 
-
-void render_sky_and_floor(struct state *s)
+void render_plane(struct state *s, int texture_index, double texture_scale, int y, int h)
 {
-        render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false, 1.0);
-        render_gradient(s, HEIGHT / 2, HEIGHT / 2, FLOOR_COLOR, true, 0.3);
+        SDL_Surface *floorTx = game_textures_surf[texture_index];
 
-        SDL_Surface *floorTx = game_textures_surf[PLASTER_INDEX];
-
-        double txScale = 30.0;
-
-        SDL_Surface *floor = SDL_CreateRGBSurfaceWithFormat(0, WIDTH, HEIGHT / 2, 32, floorTx->format->format);
+        SDL_Surface *floor = SDL_CreateRGBSurfaceWithFormat(0, WIDTH, h, 32, floorTx->format->format);
 
         for (int i = 0; i < HEIGHT / 2; i++) {
-                struct tex_uv uv = texture_uv(i + HEIGHT / 2.0, txScale, cam.location.x, cam.location.y);
+                struct tex_uv uv = texture_uv(i + y, texture_scale, 0.0, 0.0);
                 for (int x = 0; x < WIDTH; x++) {
                         int txU = abs((int) lerp(uv.u1, uv.u2, x / (WIDTH + 0.0)) % floorTx->w);
                         int txV = abs((int) lerp(uv.v1, uv.v2, x / (WIDTH + 0.0)) % floorTx->h);
@@ -138,16 +132,16 @@ void render_sky_and_floor(struct state *s)
 
         SDL_Rect dst = {
                 .x = 0,
-                .y = HEIGHT / 2,
+                .y = y,
                 .w = WIDTH,
-                .h = HEIGHT / 2
+                .h = h
         };
 
         SDL_Rect src = {
                 .x = 0,
                 .y = 0,
                 .w = WIDTH,
-                .h = HEIGHT
+                .h = h
         };
 
         SDL_Texture *finalTx = SDL_CreateTextureFromSurface(s->renderer, floor);
@@ -155,6 +149,13 @@ void render_sky_and_floor(struct state *s)
 
         SDL_DestroyTexture(finalTx);
         SDL_FreeSurface(floor);
+}
+
+void render_sky_and_floor(struct state *s)
+{
+        render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false, 1.0);
+        render_plane(s, TILES_INDEX, 100.0, 0, HEIGHT / 2);
+        render_plane(s, TILES_INDEX, 100.0, HEIGHT / 2, HEIGHT / 2);
 }
 
 void render_crosshair(struct state *s)

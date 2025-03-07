@@ -51,6 +51,8 @@ struct vector perspective(double worldX, double worldY, double worldZ);
 
 struct vector inverse_perspective(double screenX, double screenY, double worldY);
 
+void rotate_y(struct vector *vec, double angle);
+
 struct tex_uv {
         double u1;
         double v1;
