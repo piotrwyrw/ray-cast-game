@@ -21,7 +21,7 @@ extern double FOV;
 #define SKY_COLOR 255, 255, 255
 #define FLOOR_COLOR 90, 90, 90
 
-#define FLOOR_HEIGHT 10.0
+#define FLOOR_HEIGHT 50.0
 
 double light_intensity(double distance);
 

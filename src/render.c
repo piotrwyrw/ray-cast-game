@@ -154,8 +154,8 @@ void render_plane(struct state *s, int texture_index, double texture_scale, int 
 void render_sky_and_floor(struct state *s)
 {
         render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false, 1.0);
-        render_plane(s, TILES_INDEX, 100.0, 0, HEIGHT / 2);
-        render_plane(s, TILES_INDEX, 100.0, HEIGHT / 2, HEIGHT / 2);
+        render_plane(s, TILES_INDEX, 50.0, 0, HEIGHT / 2);
+        render_plane(s, TILES_INDEX, 50.0, HEIGHT / 2, HEIGHT / 2);
 }
 
 void render_crosshair(struct state *s)

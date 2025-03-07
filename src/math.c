@@ -135,7 +135,8 @@ struct vector inverse_perspective(double screenX, double screenY, double worldY)
 {
         return (struct vector){
                 .x = -((worldY * (2.0 * screenX - WIDTH)) / (HEIGHT - 2.0 * screenY)),
-                .y = -((worldY * HEIGHT) / (tan(FOV / 2.0) * (HEIGHT - 2.0 * screenY)))
+                .y = -((worldY * HEIGHT) / (tan(FOV / 3.0) * (HEIGHT - 2.0 * screenY)))
+                // TODO: Dividing the FOV by 3 to fix misalignment -- Why?
         };
 }
 
