@@ -61,7 +61,7 @@ struct tex_uv {
         double v2;
 };
 
-struct tex_uv texture_uv(double screenY, double scale, double xOffset, double yOffset);
+struct tex_uv texture_uv(double screenY, double scale, double xOffset, double yOffset, double worldY);
 
 double lerp(double a, double b, double t);
 

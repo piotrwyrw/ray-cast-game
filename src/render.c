@@ -23,16 +23,17 @@ double light_intensity(double distance)
 }
 
 // Render the wall with the given segment texture via blitting
-void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distance, _Bool contour)
+void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distance)
 {
-        int height = WALL_HEIGHT / distance;
+        struct vector top = perspective(0.0, -FLOOR_HEIGHT, distance);
+        struct vector bottom = perspective(0.0, FLOOR_HEIGHT, distance);
 
         // Render the texture
         SDL_Rect dst = {
                 .x = x,
-                .y = HEIGHT / 2 - height,
+                .y = (int) top.y,
                 .w = 1,
-                .h = height * 2
+                .h =  (int) (bottom.y - top.y)
         };
 
         SDL_Texture *txt = game_textures[rc->segment->txt];
@@ -53,15 +54,6 @@ void render_wall_line(struct state *s, struct ray_cast *rc, int x, double distan
         SDL_SetTextureColorMod(txt, (Uint8) intensity, (Uint8) intensity, (Uint8) intensity);
         SDL_RenderCopy(s->renderer, txt, &src, &dst);
         SDL_SetTextureColorMod(txt, 255, 255, 255);
-
-        SDL_SetRenderDrawColor(s->renderer, 0, 0, 0, 255);
-        SDL_RenderDrawPoint(s->renderer, x, HEIGHT / 2 - height);
-        SDL_RenderDrawPoint(s->renderer, x, HEIGHT / 2 + height);
-
-        if (!contour)
-                return;
-
-        SDL_RenderDrawLine(s->renderer, x, HEIGHT / 2 - height, x, HEIGHT / 2 + height);
 }
 
 void render_gradient(struct state *s, int y, int h, Uint8 r, Uint8 g, Uint8 b, _Bool direction, double falloff)
@@ -83,7 +75,7 @@ void render_gradient(struct state *s, int y, int h, Uint8 r, Uint8 g, Uint8 b, _
 // Calculate the ray angle via a projection plane. This is to tackle the distortion at the edges of the view.
 double outbound_angle(double x)
 {
-        double plane_w = tan(FOV / 2) * PLANE_DISTANCE;
+        double plane_w = tan(FOV / 2.0) * PLANE_DISTANCE;
         plane_w *= 2.0;
 
         double plane_x = (plane_w / WIDTH) * x;
@@ -110,18 +102,18 @@ void render_raycast(struct state *s)
 
                 const double relativeAngle = angle - cam.angle;
 
-                render_wall_line(s, &cast, x, cast.real_distance * cos(relativeAngle), cast.segment != last_segment);
+                render_wall_line(s, &cast, x, cast.real_distance * cos(relativeAngle));
         }
 }
 
-void render_plane(struct state *s, int texture_index, double texture_scale, int y, int h)
+void render_plane(struct state *s, int texture_index, double texture_scale, int y, int h, double xOffset, double yOffset, double worldY)
 {
         SDL_Surface *floorTx = game_textures_surf[texture_index];
 
         SDL_Surface *floor = SDL_CreateRGBSurfaceWithFormat(0, WIDTH, h, 32, floorTx->format->format);
 
         for (int i = 0; i < HEIGHT / 2; i++) {
-                struct tex_uv uv = texture_uv(i + y, texture_scale, 0.0, 0.0);
+                struct tex_uv uv = texture_uv(i + y, texture_scale, xOffset, yOffset, worldY);
                 for (int x = 0; x < WIDTH; x++) {
                         int txU = abs((int) lerp(uv.u1, uv.u2, x / (WIDTH + 0.0)) % floorTx->w);
                         int txV = abs((int) lerp(uv.v1, uv.v2, x / (WIDTH + 0.0)) % floorTx->h);
@@ -154,8 +146,8 @@ void render_plane(struct state *s, int texture_index, double texture_scale, int 
 void render_sky_and_floor(struct state *s)
 {
         render_gradient(s, 0, HEIGHT / 2, SKY_COLOR, false, 1.0);
-        render_plane(s, TILES_INDEX, 50.0, 0, HEIGHT / 2);
-        render_plane(s, TILES_INDEX, 50.0, HEIGHT / 2, HEIGHT / 2);
+        render_plane(s, CONCRETE_INDEX, 10e2, 0, HEIGHT / 2, -cam.location.x, -cam.location.y, FLOOR_HEIGHT);
+        render_plane(s, PLASTER_INDEX, 10e2, HEIGHT / 2, HEIGHT / 2, -cam.location.x, -cam.location.y, -FLOOR_HEIGHT);
 }
 
 void render_crosshair(struct state *s)

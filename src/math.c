@@ -126,8 +126,8 @@ struct intersection ray_ray(double o1x, double o1y, double o2x, double o2y, doub
 struct vector perspective(double worldX, double worldY, double worldZ)
 {
         return (struct vector){
-                .x = (worldX / worldZ) * (HEIGHT / (2.0 * tan(ORIGINAL_FOV / 2.0))) + (WIDTH / 2.0),
-                .y = (worldY / worldZ) * (HEIGHT / (2.0 * tan(ORIGINAL_FOV / 2.0))) + (HEIGHT / 2.0),
+                .x = (worldX / worldZ) * (HEIGHT / (2.0 * tan(FOV / 2.0))) + (WIDTH / 2.0),
+                .y = (worldY / worldZ) * (HEIGHT / (2.0 * tan(FOV / 2.0))) + (HEIGHT / 2.0),
         };
 }
 
@@ -148,19 +148,19 @@ void rotate_y(struct vector *vec, double angle)
         vec->y = new_y;
 }
 
-struct tex_uv texture_uv(double screenY, double scale, double xOffset, double yOffset)
+struct tex_uv texture_uv(double screenY, double scale, double xOffset, double yOffset, double worldY)
 {
-        struct vector offset = {xOffset, yOffset};
+        struct vector offset = {yOffset, xOffset};
 
-        struct vector left = inverse_perspective(0, screenY, FLOOR_HEIGHT);
+        struct vector left = inverse_perspective(0, screenY, worldY);
         rotate_y(&left, -cam.angle);
-        vector_mul(&left, scale);
         vector_add(&left, &offset);
+        vector_mul(&left, scale);
 
-        struct vector right = inverse_perspective(WIDTH, screenY, FLOOR_HEIGHT);
+        struct vector right = inverse_perspective(WIDTH, screenY, worldY);
         rotate_y(&right, -cam.angle);
-        vector_mul(&right, scale);
         vector_add(&right, &offset);
+        vector_mul(&right, scale);
 
         return (struct tex_uv){
                 .u1 = left.x,
